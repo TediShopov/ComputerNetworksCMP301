@@ -26,6 +26,7 @@ public struct ListenerSocketInfo
 
 public struct SyncClock 
 {
+   // public bool unPause;
     public bool isActive;               // If Client or initiator is responsible for filling timestamps
     public double waitForHost;           // If set to > 0, Client has to wait for that amount of frames
     public double initiatorSend;         // Time stamp on initiator send
@@ -111,6 +112,7 @@ public class Sender : MonoBehaviour
         BufferStruct.SyncClock.initiatorReceive = 0;
         //Sync Clock Result information -- ONLY SEND WHEN CLIENT HAS TO WAIT
         BufferStruct.SyncClock.waitForHost = 0;
+       // BufferStruct.SyncClock.unPause = false;
 
         //Default input buffer
         BufferStruct.InputElements = new InputElement[10];
@@ -152,6 +154,11 @@ public class Sender : MonoBehaviour
             {
                 BufferStruct.SyncClock.waitForHost = Listener.Instance.ReceivedBuffer.SyncClock.waitForHost;
             }
+            //if (Listener.Instance.ReceivedBuffer.SyncClock.unPause ==true)
+            //{
+            //    //BufferStruct.SyncClock.unPause = true;
+            //    ClientData.Instance.IsPaused = false;
+            //}
 
             //Starting the sync clock sequence
             if (ShouldSentSyncClockPackage())
@@ -241,6 +248,7 @@ public class Sender : MonoBehaviour
             
                 UpdateBufferToSend();
                 timesSend++;
+               
                 bool sendAll = !sender.SendAsync(sendArgs);
                   if (sendAll)
                   {

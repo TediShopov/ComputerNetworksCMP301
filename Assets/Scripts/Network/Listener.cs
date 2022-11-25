@@ -298,75 +298,84 @@ public class Listener : MonoBehaviour
             {
                
                 ReceivedBuffer.SyncClock.initiatorReceive = FrameLimiter.Instance.GetTimeSinceGameStartup();
+                double t1, t2;
+                t1 = ReceivedBuffer.SyncClock.clientReceive - ReceivedBuffer.SyncClock.initiatorSend;
+                t2 = ReceivedBuffer.SyncClock.clientSend - ReceivedBuffer.SyncClock.initiatorReceive;
                 double clockOffset =                               
-                    ((ReceivedBuffer.SyncClock.clientReceive - ReceivedBuffer.SyncClock.initiatorSend) +
-                    (ReceivedBuffer.SyncClock.clientSend - ReceivedBuffer.SyncClock.initiatorReceive)) 
-                    / 2;
+                    (t1 +t2) / 2.0;
                 ReceivedBuffer.SyncClock.waitForHost = clockOffset;
-              //  Debug.LogError($"Clock offset is: {clockOffset}");
 
 
-                //Reset the sync clock variable except the wait for host
+                long clockOffsetMs = FrameLimiter.Instance.TickToMilliseconds(clockOffset);
+                ////  Debug.LogError($"Clock offset is: {clockOffset}");
 
-                //TDOO SET THIS HERE AND TEST
-                //BufferStruct.SyncClock.isActive = false;
-                //BufferStruct.SyncClock.initiatorSend = 0;
-                //BufferStruct.SyncClock.clientReceive = 0;
-                //BufferStruct.SyncClock.clientSend = 0;
-                //BufferStruct.SyncClock.initiatorReceive = 0;
 
-                //Enemy is behind wait
-                if (clockOffset > 1)
+                //  //Reset the sync clock variable except the wait for host
+
+                //  //TDOO SET THIS HERE AND TEST
+                //  //BufferStruct.SyncClock.isActive = false;
+                //  //BufferStruct.SyncClock.initiatorSend = 0;
+                //  //BufferStruct.SyncClock.clientReceive = 0;
+                //  //BufferStruct.SyncClock.clientSend = 0;
+                //  //BufferStruct.SyncClock.initiatorReceive = 0;
+
+                //  //Enemy is behind wait
+                if (clockOffsetMs < -6)
                 {
-                    Debug.LogError("Waiting For Opponent");
-                    FrameLimiter.Instance.WaitForMS(FrameLimiter.Instance.TickToMilliseconds(ReceivedBuffer.SyncClock.waitForHost));
+                    Debug.LogError($"Waiting for oppoenent: {clockOffsetMs}");
+                    //  FrameLimiter.Instance.WaitForMS(clockOffsetMs);
+                    //ReceivedBuffer.SyncClock.unPause = true;
 
-                    //  FrameLimiter.Instance.WaitForFrames(clockOffset);
+                    FrameLimiter.Instance.WaitForMsAtEndOfFrame= -clockOffsetMs;
                 }
-                else 
+                else
                 {
-                    if (clockOffset<-1)
+                    if (clockOffsetMs > 6)
                     {
-                        ReceivedBuffer.SyncClock.waitForHost = -clockOffset;
+                        Debug.LogError($"Opponent should wait unpause: {clockOffsetMs}");
+                        // ReceivedBuffer.SyncClock.unPause = true;
+
+                        ReceivedBuffer.SyncClock.waitForHost = clockOffset;
+
+                    }
+                    else
+                    {
+                        //ReceivedBuffer.SyncClock.unPause = true;
+
+                        Debug.LogError($"Game should unpause: {clockOffsetMs}");
 
                     }
                 }
 
 
-                //Debug.LogError($"On Initiator Receive IsA={ReceivedBuffer.SyncClock.isActive}," +
-                //$"t0 = {ReceivedBuffer.SyncClock.initiatorSend}, t1={ReceivedBuffer.SyncClock.clientReceive}" +
-                //$"t2 ={ReceivedBuffer.SyncClock.clientSend}, t3={ReceivedBuffer.SyncClock.initiatorReceive} " +
-                //$"wait={ReceivedBuffer.SyncClock.waitForHost}"
-                //);
+                Debug.LogError($" Difference in  sync clocktimestamps: TD1: " +
+                    $"{FrameLimiter.Instance.TickToMilliseconds(t1)} " +
+                  $"TD2: { FrameLimiter.Instance.TickToMilliseconds(t2)}"
+                  );
 
 
 
-                Debug.LogError($"MS to wait ={FrameLimiter.Instance.TickToMilliseconds(ReceivedBuffer.SyncClock.waitForHost)}," 
-               );
-                _timestampOneDifferences.Add(
-                    FrameLimiter.Instance.TickToMilliseconds(
-                    ReceivedBuffer.SyncClock.clientReceive - ReceivedBuffer.SyncClock.initiatorSend));
-                _timestampTwoDifferences.Add(
-                    FrameLimiter.Instance.TickToMilliseconds(
-                        ReceivedBuffer.SyncClock.initiatorReceive - ReceivedBuffer.SyncClock.clientSend));
+                double RTT = ((ReceivedBuffer.SyncClock.initiatorReceive - ReceivedBuffer.SyncClock.initiatorSend)
+                    - (ReceivedBuffer.SyncClock.clientSend - ReceivedBuffer.SyncClock.clientReceive));
+                Debug.LogError($"RTT: {FrameLimiter.Instance.TickToMilliseconds(RTT)}");
 
-                //Debug.LogError($"AVG Difference in timestamps: TD1: {Queryable.Average(_timestampOneDifferences.AsQueryable())} " +
-                //    $"TD2: {Queryable.Average(_timestampTwoDifferences.AsQueryable())}"
+                Debug.LogError($"MS to wait ={clockOffsetMs}," );
 
-                Debug.LogError($" Difference in  sync clocktimestamps: TD1: {FrameLimiter.Instance.TickToMilliseconds(ReceivedBuffer.SyncClock.clientReceive - ReceivedBuffer.SyncClock.initiatorSend)} " +
-                    $"TD2: { FrameLimiter.Instance.TickToMilliseconds(ReceivedBuffer.SyncClock.initiatorReceive - ReceivedBuffer.SyncClock.clientSend)}"
-                    );
 
+
+              
             }
         }
         else
         {
+            long clockOffsetMs = FrameLimiter.Instance.TickToMilliseconds(ReceivedBuffer.SyncClock.waitForHost);
 
-            if (ReceivedBuffer.SyncClock.waitForHost != 0)
+            if (ReceivedBuffer.SyncClock.waitForHost > 0)
             {
 
+                Debug.LogError($"Waiting for oppoenent: {clockOffsetMs}");
+                FrameLimiter.Instance.WaitForMsAtEndOfFrame+=clockOffsetMs;
 
-                FrameLimiter.Instance.WaitForMS(FrameLimiter.Instance.TickToMilliseconds(ReceivedBuffer.SyncClock.waitForHost));
                 ReceivedBuffer.SyncClock.waitForHost = 0;
                 //SyncClock.Instance.Reset();
             }

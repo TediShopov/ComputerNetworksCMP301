@@ -14,8 +14,8 @@ public class FrameLimiter : MonoBehaviour
     //public bool WaitForReceivedInput;
     //private bool _receivedInput = false;
     //private bool _receivedInputOnce = false;
-    //public  bool ToggleSleep=false;
-    //public long SleepForMs = 160;
+    public  bool ToggleSleep=false;
+    public long SleepForMs = 160;
     private static Int32 _framesInPlay;
 
 
@@ -79,10 +79,21 @@ public class FrameLimiter : MonoBehaviour
         //_receivedInput = true;
     }
 
-    public  void WaitForMS(long ms) 
+    public long WaitForMsAtEndOfFrame = 0;
+
+    public void WaitForMS(long ms) 
     {
-        //ToggleSleep = true;
-        //SleepForMs = ms;
+        Stopwatch waitStopwatch = new Stopwatch();
+        waitStopwatch.Start();
+        var now = waitStopwatch.ElapsedMilliseconds;
+        SleepForMs = ms;
+        var timeToWaitUntil = now + ms;
+        Stopwatch.Stop();
+        UnityEngine.Debug.LogError($"Sleeping for {ms} milliseconds");
+        SpinWait.SpinUntil(() => { return (waitStopwatch.ElapsedMilliseconds >= timeToWaitUntil); });
+        Stopwatch.Start();
+        waitStopwatch.Stop();
+
     }
 
     //private void Update()
@@ -93,18 +104,26 @@ public class FrameLimiter : MonoBehaviour
     //    }
     //}
 
-     void Update()
+    void Update()
     {
         if (FPSLimit == 0.0) return;
 
+        if (ClientData.Instance.IsPaused)
+        {
+            FramesInPlay++;
+        }
 
         var now = Stopwatch.ElapsedTicks;
-     
+
+        if (WaitForMsAtEndOfFrame>0)
+        {
+            WaitForMS(WaitForMsAtEndOfFrame);
+            WaitForMsAtEndOfFrame = 0;
+        }
 
        lastTime += FPSLimitTicks;
 
 
-        FramesInPlay++;
         if (now >= lastTime)
         {
             lastTime = now;
@@ -116,6 +135,11 @@ public class FrameLimiter : MonoBehaviour
             //UnityEngine.Debug.LogError($"SPIN WAIT FPS: {fpsCount}");
             SpinWait.SpinUntil(() => { return (Stopwatch.ElapsedTicks >= lastTime); });
         }
+
+
+       
+
+
     }
     //IEnumerator  WaitForNextFrame()
     //{

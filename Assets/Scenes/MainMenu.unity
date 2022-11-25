@@ -1698,7 +1698,7 @@ MonoBehaviour:
   SendUpdateEnded: 0
   TimestampLastSend: 0
   TimestampCurrentSend: 0
-  ClockSyncEachFrame: 120
+  ClockSyncEachFrame: 360
   SendAfterFrames: 3
   toggleSend: 0
   sendFinished: 1

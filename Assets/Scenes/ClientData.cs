@@ -8,7 +8,7 @@ public class ClientData : MonoBehaviour
     public int PlayerHash { get; set; }
 
     public bool IsClientInitiator { get; set; }
-
+    public bool IsPaused { get; set; }
     public bool TwoWayConnectionEstablished() {
         return Listener.Instance.IsReceiverConnected() &&
 Sender.Instance.IsSenderConnected();
@@ -17,7 +17,7 @@ Sender.Instance.IsSenderConnected();
     {
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
-
+        IsPaused = true;
     }
     // Start is called before the first frame update
     void Start()
@@ -27,5 +27,14 @@ Sender.Instance.IsSenderConnected();
 
     }
 
-  
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            IsPaused = !IsPaused;
+            Debug.LogError($"Paused = {IsPaused}");
+        }
+    }
+
+
 }

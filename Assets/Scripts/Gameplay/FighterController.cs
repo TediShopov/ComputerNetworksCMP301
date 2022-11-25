@@ -44,6 +44,10 @@ public class FighterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ClientData.Instance.IsPaused)
+        {
+            return;
+        }
         horizontalMovement = new Vector3(0, 0, 0);
 
         _keysPressedThisFrame.Clear();
