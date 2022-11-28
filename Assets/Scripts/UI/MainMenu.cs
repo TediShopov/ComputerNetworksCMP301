@@ -26,7 +26,7 @@ public class MainMenu: MonoBehaviour
         }
 
         string statusString="";
-        if (ClientData.Instance.TwoWayConnectionEstablished())
+        if (ClientData.TwoWayConnectionEstablished())
         {
             statusString += $"TWO WAY CONNECTION ESTABLISEHD";
 

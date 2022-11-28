@@ -22,14 +22,14 @@ public class Listener : MonoBehaviour
     int bufferLength;
     byte[] byteBuffer;
     
-    Socket listener;
+    public Socket listener;
     IPAddress hostIP;
     IPEndPoint IPEndPoint;
     //AsyncCallback onAcceptCallback = new AsyncCallback(LogNewAcceptedConnection);
     SocketAsyncEventArgs recvArgs;
     SocketAsyncEventArgs accceptArgs;
     public BufferStruct ReceivedBuffer;
-    static Socket receiver;
+    public static Socket receiver;
 
     private List<long> _timestampOneDifferences;
     private List<long> _timestampTwoDifferences;
@@ -38,6 +38,11 @@ public class Listener : MonoBehaviour
     public event InputElementsOnReceive OnReceive;
 
     private static Listener _instance;
+
+
+    private double _stampOnActualReceive;
+    private double _stampOnExecutedReceive;
+
 
     public static Listener Instance
     {
@@ -185,7 +190,7 @@ public class Listener : MonoBehaviour
     {
         if (e.SocketError==SocketError.Success)
         {
-            if (ClientData.Instance.IsClientInitiator)
+            if (ClientData.IsClientInitiator)
             {
                 Sender.Instance.toggleSend = false;
             }
@@ -218,7 +223,7 @@ public class Listener : MonoBehaviour
         //Receiver is initialied and connected
 
         //IF event args are not set set them
-        if (toggleReceiving || !ClientData.Instance.TwoWayConnectionEstablished())
+        if (toggleReceiving || !ClientData.TwoWayConnectionEstablished())
         {
             if (recvArgs == null)
             {
@@ -237,12 +242,19 @@ public class Listener : MonoBehaviour
             //if receiving is finsihed
             if (finishedReceiving)
             {
-             
+
                 //Set buffer
-               
-               ReceivedBuffer = RawDeserialize<BufferStruct>(byteBuffer, 0);
+                if (FrameLimiter.Instance != null)
+                {
+                    _stampOnExecutedReceive = FrameLimiter.Instance.GetTimeSinceGameStartup();
+                }
+
+
+                //Debug.LogError($"Actual Time of recv : {_stampOnActualReceive} executed: {_stampOnExecutedReceive} Diff" +
+                //    $"{   _stampOnExecutedReceive- _stampOnActualReceive             }");
+                ReceivedBuffer = RawDeserialize<BufferStruct>(byteBuffer, 0);
                 //If no 2-way coonnection and this client didnt start the first send
-                if (!ClientData.Instance.TwoWayConnectionEstablished() && !ClientData.Instance.IsClientInitiator)
+                if (!ClientData.TwoWayConnectionEstablished() && !ClientData.IsClientInitiator)
                 {
                     Sender.Instance.TrtConnectToPort(ReceivedBuffer.ListenerSocketInfo.portNum);
                 }
@@ -287,7 +299,7 @@ public class Listener : MonoBehaviour
     {
         
         //Initiator is the one responsible for sending the sync pakcages
-        if (ClientData.Instance.IsClientInitiator)
+        if (ClientData.IsClientInitiator)
         {
             //Wait for host should onyl be sned and never received
             if (ReceivedBuffer.SyncClock.waitForHost!=0)
@@ -322,17 +334,17 @@ public class Listener : MonoBehaviour
                 //  //Enemy is behind wait
                 if (clockOffsetMs < -6)
                 {
-                    Debug.LogError($"Waiting for oppoenent: {clockOffsetMs}");
+                   // Debug.LogError($"Waiting for oppoenent: {clockOffsetMs}");
                     //  FrameLimiter.Instance.WaitForMS(clockOffsetMs);
                     //ReceivedBuffer.SyncClock.unPause = true;
 
-                    FrameLimiter.Instance.WaitForMsAtEndOfFrame= -clockOffsetMs;
+                  //  FrameLimiter.Instance.WaitForMsAtEndOfFrame= -clockOffsetMs;
                 }
                 else
                 {
                     if (clockOffsetMs > 6)
                     {
-                        Debug.LogError($"Opponent should wait unpause: {clockOffsetMs}");
+                        //Debug.LogError($"Opponent should wait unpause: {clockOffsetMs}");
                         // ReceivedBuffer.SyncClock.unPause = true;
 
                         ReceivedBuffer.SyncClock.waitForHost = clockOffset;
@@ -342,24 +354,24 @@ public class Listener : MonoBehaviour
                     {
                         //ReceivedBuffer.SyncClock.unPause = true;
 
-                        Debug.LogError($"Game should unpause: {clockOffsetMs}");
+                     //   Debug.LogError($"Game should unpause: {clockOffsetMs}");
 
                     }
                 }
 
 
-                Debug.LogError($" Difference in  sync clocktimestamps: TD1: " +
-                    $"{FrameLimiter.Instance.TickToMilliseconds(t1)} " +
-                  $"TD2: { FrameLimiter.Instance.TickToMilliseconds(t2)}"
-                  );
+                //Debug.LogError($" Difference in  sync clocktimestamps: TD1: " +
+                //    $"{FrameLimiter.Instance.TickToMilliseconds(t1)} " +
+                //  $"TD2: { FrameLimiter.Instance.TickToMilliseconds(t2)}"
+                //  );
 
 
 
-                double RTT = ((ReceivedBuffer.SyncClock.initiatorReceive - ReceivedBuffer.SyncClock.initiatorSend)
-                    - (ReceivedBuffer.SyncClock.clientSend - ReceivedBuffer.SyncClock.clientReceive));
-                Debug.LogError($"RTT: {FrameLimiter.Instance.TickToMilliseconds(RTT)}");
+                //double RTT = ((ReceivedBuffer.SyncClock.initiatorReceive - ReceivedBuffer.SyncClock.initiatorSend)
+                //    - (ReceivedBuffer.SyncClock.clientSend - ReceivedBuffer.SyncClock.clientReceive));
+                //Debug.LogError($"RTT: {FrameLimiter.Instance.TickToMilliseconds(RTT)}");
 
-                Debug.LogError($"MS to wait ={clockOffsetMs}," );
+                //Debug.LogError($"MS to wait ={clockOffsetMs}," );
 
 
 
@@ -373,8 +385,8 @@ public class Listener : MonoBehaviour
             if (ReceivedBuffer.SyncClock.waitForHost > 0)
             {
 
-                Debug.LogError($"Waiting for oppoenent: {clockOffsetMs}");
-                FrameLimiter.Instance.WaitForMsAtEndOfFrame+=clockOffsetMs;
+                //Debug.LogError($"Waiting for oppoenent: {clockOffsetMs}");
+                //FrameLimiter.Instance.WaitForMsAtEndOfFrame+=clockOffsetMs;
 
                 ReceivedBuffer.SyncClock.waitForHost = 0;
                 //SyncClock.Instance.Reset();
@@ -390,7 +402,7 @@ public class Listener : MonoBehaviour
                 //Set t1 time of receiveing
                 if (ReceivedBuffer.SyncClock.clientReceive==0)
                 {
-                    ReceivedBuffer.SyncClock.clientReceive = FrameLimiter.Instance.GetTimeSinceGameStartup();
+                    ReceivedBuffer.SyncClock.clientReceive = _stampOnActualReceive;
 
                 }
               
@@ -417,12 +429,16 @@ public class Listener : MonoBehaviour
     //Will be invoked automatically wehen socket receive finises asynchonouslky
     void ReceiveEventArg_Completed(object sender, SocketAsyncEventArgs e)
     {
-        if (ClientData.Instance.IsClientInitiator && ClientData.Instance.TwoWayConnectionEstablished())
+        if (ClientData.IsClientInitiator && ClientData.TwoWayConnectionEstablished())
         {
             Sender.Instance.toggleSend = true;
             int a = Sender.Instance.timesSend;
         }
-       
+        if (FrameLimiter.Instance!=null)
+        {
+            _stampOnActualReceive = FrameLimiter.Instance.GetTimeSinceGameStartup();
+
+        }
         finishedReceiving = true;
     }
 

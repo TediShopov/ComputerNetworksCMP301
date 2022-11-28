@@ -44,7 +44,7 @@ public class FighterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (ClientData.Instance.IsPaused)
+        if (ClientData.IsPaused)
         {
             return;
         }
@@ -119,7 +119,7 @@ public class FighterController : MonoBehaviour
                 //Debug.LogError($"Diff between Frames and timestamp {diff}");
                 //if (diff>5)
                 //{
-                //    if (!ClientData.Instance.IsClientInitiator)
+                //    if (!ClientData.IsClientInitiator)
                 //    {
                 //     //   FrameLimiter.Instance.WaitForFrames(diff);
                 //    }

@@ -74,7 +74,7 @@ public class InputBuffer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (ClientData.Instance.IsPaused)
+        if (ClientData.IsPaused)
         {
             return;
         }
@@ -110,7 +110,7 @@ public class InputBuffer : MonoBehaviour
         // {
         var elements = Listener.Instance.ReceivedBuffer.InputElements;
         //int receivedHash= Listener.Instance.ReceivedBuffer.portNum;
-        //if (receivedHash == ClientData.Instance.PlayerHash)
+        //if (receivedHash == ClientData.PlayerHash)
         //{
         //    return;
         //}

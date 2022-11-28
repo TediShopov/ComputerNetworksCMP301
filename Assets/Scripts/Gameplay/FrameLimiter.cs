@@ -108,7 +108,7 @@ public class FrameLimiter : MonoBehaviour
     {
         if (FPSLimit == 0.0) return;
 
-        if (ClientData.Instance.IsPaused)
+        if (!ClientData.IsPaused)
         {
             FramesInPlay++;
         }

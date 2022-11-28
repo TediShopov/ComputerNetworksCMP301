@@ -51,8 +51,8 @@ public class Sender : MonoBehaviour
 {
 
     IPAddress hostIP;
-    IPEndPoint IPEndPoint;
-    Socket sender;
+    public IPEndPoint IPEndPoint;
+    public Socket sender;
     SocketAsyncEventArgs sendArgs;
     // private readonly object sendBufferLock = new object();
     public bool SendUpdateEnded = false;
@@ -144,7 +144,7 @@ public class Sender : MonoBehaviour
         }
 
         //Sync Clock Package information
-        if (ClientData.Instance.IsClientInitiator)
+        if (ClientData.IsClientInitiator)
         {
             //Initiator is responsible for timestamp first and last timestamp, isActive, waitFor host
 
@@ -157,7 +157,7 @@ public class Sender : MonoBehaviour
             //if (Listener.Instance.ReceivedBuffer.SyncClock.unPause ==true)
             //{
             //    //BufferStruct.SyncClock.unPause = true;
-            //    ClientData.Instance.IsPaused = false;
+            //    ClientData.IsPaused = false;
             //}
 
             //Starting the sync clock sequence
@@ -230,14 +230,14 @@ public class Sender : MonoBehaviour
             _waitedFrames = 0;
         }
 
-        if (toggleSend && ClientData.Instance.TwoWayConnectionEstablished())
+        if (toggleSend && ClientData.TwoWayConnectionEstablished())
         {
             ++_syncClockFramePassed;
         }
         //Senbd packet when send is toggle -- happens on game start
         //Or send packages if other peer still has not connected
         //to our local listener
-        if (toggleSend /*|| !ClientData.Instance.TwoWayConnectionEstablished()*/)
+        if (toggleSend /*|| !ClientData.TwoWayConnectionEstablished()*/)
         {
             
             if (sendFinished)
@@ -287,7 +287,7 @@ public class Sender : MonoBehaviour
             IPEndPoint = new IPEndPoint(hostIP, portNum);
             sender.ConnectAsync(IPEndPoint).Wait();
             Debug.Log("Trying to connect to listener");
-            ClientData.Instance.IsClientInitiator = !Listener.Instance.IsReceiverConnected();
+            ClientData.IsClientInitiator = !Listener.Instance.IsReceiverConnected();
 
             //send information for listener socket on this client and an empty buffer
             //do only once
