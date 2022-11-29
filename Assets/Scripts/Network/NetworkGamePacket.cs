@@ -8,7 +8,7 @@ using UnityEngine;
 public struct GamePacket
 {
     //The Input Data to send
-    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 10)]
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 4)]
     public InputElement[] InputElements;
 }
 public class NetworkGamePacket : MonoBehaviour
@@ -42,7 +42,7 @@ public class NetworkGamePacket : MonoBehaviour
     GamePacket PrepareGamePacket() 
     {
         GamePacket gp;
-        gp.InputElements=StaticBuffers.Instance.PlayerBuffer.GetBuffer().ToArray();
+        gp.InputElements=StaticBuffers.Instance.PlayerBuffer.LastFrame._inputInFrame;
         return gp;
     }
 

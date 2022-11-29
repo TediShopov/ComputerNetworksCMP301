@@ -60,7 +60,7 @@ public class FighterController : MonoBehaviour
         //{
         //InputBuffer.DebugPrint();
 
-        ProcessInputBuffer(InputBuffer.GetBuffer().ToArray());
+        ProcessInputBuffer(InputBuffer.GetFirstFrame());
        //}
         animator.SetFloat("XSpeed", horizontalMovement.x);
     }
@@ -91,17 +91,17 @@ public class FighterController : MonoBehaviour
         }
     }
 
-    void ProcessInputBuffer(InputElement[] inputBuffer) 
+    void ProcessInputBuffer(InputElement[] inputFrame) 
     {
 
 
        
-        var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
+        //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
 
-        if (CheckFireball(keyDownBuff.ToArray()))
-        {
-            Debug.LogWarning("Fireball Input Detected");
-        }
+        //if (CheckFireball(keyDownBuff.ToArray()))
+        //{
+        //    Debug.LogWarning("Fireball Input Detected");
+        //}
 
         //If combos/special attack is not found 
 
@@ -127,30 +127,35 @@ public class FighterController : MonoBehaviour
 
         }
 
-        int curr= FrameLimiter.FramesInPlay;
-        int low= this.InputBuffer.LowestFrameStamp;
-        int high= this.InputBuffer.HighestFrameStamp;
-        if (low < curr && curr< high)
-        {
-           // Debug.LogError($"OK Frame {curr} in [{low} - {high}]");
-        }
-        else
-        {
-            if (low>curr)
-            {
-                Debug.LogError($"ERROR Lower By {low-curr}");
-            }
-            if (curr>high)
-            {
-                Debug.LogError($"ERROR Higher By {curr - high}");
+        //  int curr= FrameLimiter.FramesInPlay;
+        ////  int low= this.InputBuffer.LowestFrameStamp;
+        // // int high= this.InputBuffer.HighestFrameStamp;
+        //  if (low < curr && curr< high)
+        //  {
+        //     // Debug.LogError($"OK Frame {curr} in [{low} - {high}]");
+        //  }
+        //  else
+        //  {
+        //      if (low>curr)
+        //      {
+        //          //Debug.LogError($"ERROR Lower By {low-curr}");
+        //      }
+        //      if (curr>high)
+        //      {
+        //          //Debug.LogError($"ERROR Higher By {curr - high}");
 
-            }
-        }
+        //      }
+        //  }
 
         //Todo this will not aacount for multiple pressed keys at once
-        foreach (var el in inputBuffer)
+        if (inputFrame==null)
         {
-            
+            return;
+        }
+        foreach (var el in inputFrame)
+        {
+            int mismtach = el.timeStamp - FrameLimiter.FramesInPlay;
+            Debug.LogError($"Mismatch Between Current Frame and timestamp = {mismtach}");
             if (el.timeStamp == FrameLimiter.FramesInPlay && !_keysPressedThisFrame.Contains(el.key))
             {
                 _keysPressedThisFrame.Add(el.key);
