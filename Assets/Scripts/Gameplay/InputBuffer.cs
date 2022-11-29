@@ -44,25 +44,25 @@ public class InputBuffer : MonoBehaviour
     void Start()
     {
        
-        //_inputElements = new Queue<InputElement>();
+        _inputElements = new Queue<InputElement>();
        
-        //_keyDownBuffer = new Queue<InputElement>();
-        //for (int i = 0; i < 10; i++)
-        //{
-        //    AddKey(KeyCode.None);
-        //}
-       
+        _keyDownBuffer = new Queue<InputElement>();
+        for (int i = 0; i < 10; i++)
+        {
+            AddKey(KeyCode.None);
+        }
 
-      
+
+
         ////TODO priority is important
-        //allowedKeysArr = new KeyCode[] { KeyCode.Space, KeyCode.S, KeyCode.A,  KeyCode.D  };
-        //StartCoroutine(DebugPrintAfter());
-        //StartCoroutine(DeleteBufferAter());
+        allowedKeysArr = new KeyCode[] { KeyCode.Space, KeyCode.S, KeyCode.A, KeyCode.D };
+        StartCoroutine(DebugPrintAfter());
+        StartCoroutine(DeleteBufferAter());
         //if (bufferState == InputBufferState.InputReceiver)
         //{
         //    //TODO check if event delegate is still active
 
-        //     Listener.Instance.OnReceive += SetBuffer;
+        //    Listener.Instance.OnReceive += SetBuffer;
         //}
         //Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
 
@@ -71,45 +71,49 @@ public class InputBuffer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if (ClientData.IsPaused)
-        //{
-        //    return;
-        //}
-        //    if (bufferState == InputBufferState.InputCollector)
-        //    {
-           
-        //        bool _noAllowedKeyPressed = true;
-        //        foreach (var el in allowedKeysArr)
-        //        {
-        //            if (Input.GetKeyDown(el))
-        //            {
-        //                AddKeyDown(el);
-        //            }
-        //            if (Input.GetKey(el))
-        //            {
-        //                AddKey(el);
-        //                _noAllowedKeyPressed = false;
-        //            }
-        //        }
+        if (ClientData.IsPaused)
+        {
+            return;
+        }
+        if (bufferState == InputBufferState.InputCollector)
+        {
+
+            bool _noAllowedKeyPressed = true;
+            foreach (var el in allowedKeysArr)
+            {
+                if (Input.GetKeyDown(el))
+                {
+                    AddKeyDown(el);
+                }
+                if (Input.GetKey(el))
+                {
+                    AddKey(el);
+                    _noAllowedKeyPressed = false;
+                }
+            }
 
 
-        //        if (_noAllowedKeyPressed)
-        //        {
-        //            AddKey(KeyCode.None);
-        //        }
-            
-        //}
-           
+            if (_noAllowedKeyPressed)
+            {
+                AddKey(KeyCode.None);
+            }
+
+        }
+        else
+        {
+            SetBuffer();
+        }
+
     }
     public void SetBuffer() 
     {
-        //var elements = Listener.Instance.ReceivedBuffer.InputElements;
-        //this._inputElements.Clear();
-        //for (int i = 0; i < elements.Length; i++)
-        //{
-        //    var el = elements[i];
-        //    this._inputElements.Enqueue(el);
-        //}
+        var elements = NetworkGamePacket.LastReceivedGamePacket.InputElements;
+        this._inputElements.Clear();
+        for (int i = 0; i < elements.Length; i++)
+        {
+            var el = elements[i];
+            this._inputElements.Enqueue(el);
+        }
     }
 
    

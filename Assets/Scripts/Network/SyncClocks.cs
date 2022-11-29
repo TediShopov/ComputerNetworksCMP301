@@ -141,7 +141,7 @@ public class SyncClocks : MonoBehaviour
         //Millisecond to wait for the information to arrive to the other peer
         long avgMsToWait = FrameLimiter.Instance.TickToMilliseconds(avgLatenc);
         FrameLimiter.Instance.WaitForMsAtEndOfFrame += avgMsToWait;
-        ClientData.IsPaused = true;
+        ClientData.IsPaused = false;
         FrameLimiter.Instance.FPSLimit = 60;
 
     }
@@ -154,7 +154,7 @@ public class SyncClocks : MonoBehaviour
         {
             FrameLimiter.Instance.FPSLimit = 60;
 
-            ClientData.IsPaused = true;
+            ClientData.IsPaused = false;
         }
         else
         {
@@ -187,18 +187,5 @@ public class SyncClocks : MonoBehaviour
 
         InitiatorSend();
 
-    }
-
-    
-    
-
-    
-
-
-
-    // Update is called once per frame
-    void Update()
-    {
-      
     }
 }

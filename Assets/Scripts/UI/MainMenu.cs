@@ -23,11 +23,6 @@ public class MainMenu: MonoBehaviour
     TwoWayConnectionEstablisher twoWayConnection;
      void Update()
     {
-        //if (SocketComunication.ConnectionListener!=null && !SocketComunication.ConnectionListener.IsBound )
-        //{
-        //    ListenOnPort();
-        //}
-
         if (SocketComunication.ConnectionListener.IsBound)
         {
             IPEndPoint ip = SocketComunication.ConnectionListener.LocalEndPoint as IPEndPoint;
@@ -79,13 +74,11 @@ public class MainMenu: MonoBehaviour
     {
         if (listeningOnPortText.text!=string.Empty)
         {
-            int portNum = 12;
             string connectionStr;
-
             try
             {
                 
-                 portNum = int.Parse(conntectToPort.text);
+                int portNum = int.Parse(conntectToPort.text);
                 twoWayConnection.EstablishTwoWayConnection(portNum);
 
             }
@@ -97,11 +90,6 @@ public class MainMenu: MonoBehaviour
                 statusText.text = connectionStr;
                 statusText.color = Color.red;
             }
-
-
-
-
-
         }
     }
 }
