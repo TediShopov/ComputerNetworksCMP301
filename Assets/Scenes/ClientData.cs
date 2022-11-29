@@ -9,30 +9,9 @@ public class ClientData : MonoBehaviour
     static public bool IsClientInitiator { get; set; } = false;
     static public bool IsPaused { get; set; }
     static public bool TwoWayConnectionEstablished() {
-        return Listener.Instance.IsReceiverConnected() &&
-        Sender.Instance.IsSenderConnected();
+        return SocketComunication.Receiver.Connected &&
+       SocketComunication.Sender.Connected;
     }
-    //void Awake()
-    //{
-    //    DontDestroyOnLoad(this.gameObject);
-    //    IsPaused = false;
-    //}
-    //// Start is called before the first frame update
-    //void Start()
-    //{
-    //    IsClientInitiator = false;
-    //    PlayerHash = Random.Range(0, 65550);
-
-    //}
-
-    //private void Update()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.P))
-    //    {
-    //        IsPaused = !IsPaused;
-    //        Debug.LogError($"Paused = {IsPaused}");
-    //    }
-    //}
-
+   
 
 }

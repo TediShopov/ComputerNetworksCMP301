@@ -8,12 +8,6 @@ using System.Diagnostics;
 
 public class FrameLimiter : MonoBehaviour
 {
-
-    //public float FPSLimit = 60.0f;
-    //float currentFrameTime;
-    //public bool WaitForReceivedInput;
-    //private bool _receivedInput = false;
-    //private bool _receivedInputOnce = false;
     public  bool ToggleSleep=false;
     public long SleepForMs = 160;
     private static Int32 _framesInPlay;
@@ -21,9 +15,6 @@ public class FrameLimiter : MonoBehaviour
 
     public double FPSLimit;
     public long FPSLimitTicks;
-
-    private long timeAfterFrameMs;
-
     private long lastTime;
 
     public static FrameLimiter Instance { get; set; }
@@ -63,22 +54,11 @@ public class FrameLimiter : MonoBehaviour
 
     void Start()
     {
-      
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 9999;
-        //currentFrameTime = Time.realtimeSinceStartup;
-
-        
-        StartCoroutine("WaitForNextFrame");
-       // Listener.Instance.OnReceive += UpdateReceivedInput;
     }
 
-    void UpdateReceivedInput() 
-    {
-        //_receivedInputOnce = true;
-        //_receivedInput = true;
-    }
-
+ 
     public long WaitForMsAtEndOfFrame = 0;
 
     public void WaitForMS(long ms) 
@@ -95,14 +75,6 @@ public class FrameLimiter : MonoBehaviour
         waitStopwatch.Stop();
 
     }
-
-    //private void Update()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.K))
-    //    {
-    //        this.WaitForMS(160);
-    //    }
-    //}
 
     void Update()
     {
@@ -135,76 +107,7 @@ public class FrameLimiter : MonoBehaviour
             //UnityEngine.Debug.LogError($"SPIN WAIT FPS: {fpsCount}");
             SpinWait.SpinUntil(() => { return (Stopwatch.ElapsedTicks >= lastTime); });
         }
-
-
-       
-
-
     }
-    //IEnumerator  WaitForNextFrame()
-    //{
-    //    while (true)
-    //    {
-    //        _receivedInput = false;
-    //        yield return new WaitForEndOfFrame();
-    //        ++FramesInPlay;
 
-    //        if (WaitForReceivedInput && !_receivedInput && _receivedInputOnce)
-    //        {
-    //            while (!_receivedInput)
-    //            {
-    //                //break;
-    //                //do nothing;
-    //            }
-    //        }
-
-
-    //        timeAfterFrameMs += 16;
-    //        long t = Stopwatch.ElapsedMilliseconds;
-    //        long msSleepTime = timeAfterFrameMs - t ;
-
-    //        if (msSleepTime > 0)
-    //        {
-    //            UnityEngine.Debug.LogError($"Time to wait l: {msSleepTime} == i: {(int)msSleepTime}");
-    //            Thread.Sleep((int)msSleepTime);
-    //            while (t < timeAfterFrameMs)
-    //            {
-    //               t = Stopwatch.ElapsedMilliseconds;
-    //            }
-    //        }
-
-    //        if (ToggleSleep)
-    //        {
-    //            Thread.Sleep((int)SleepForMs);
-    //            ToggleSleep = false;
-    //            //FramesInPlay += sleepForFrames;
-    //            t = Stopwatch.ElapsedMilliseconds;
-    //            timeAfterFrameMs += SleepForMs/16;
-    //        }
-
-
-    //        //currentFrameTime += 1.0f / FPSLimit;
-    //        //var t = Time.realtimeSinceStartup;
-    //        //var sleepTime = currentFrameTime - t - 0.01f;
-
-
-
-    //        //if (sleepTime > 0)
-    //        //        Thread.Sleep((int)(sleepTime * 1000));
-    //        //    while (t < currentFrameTime)
-    //        //        t = Time.realtimeSinceStartup;
-
-
-    //        //if (ToggleSleep)
-    //        //{
-    //        //    Thread.Sleep((int)((1.0f / FPSLimit) * sleepForFrames * 1000));
-    //        //    ToggleSleep = false;
-    //        //    //FramesInPlay += sleepForFrames;
-    //        //    t = Time.realtimeSinceStartup;
-    //        //    currentFrameTime += (1.0f / FPSLimit) * sleepForFrames;
-    //        //}
-
-    //    }
-    //}
 }
 

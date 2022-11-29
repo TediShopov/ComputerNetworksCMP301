@@ -13,18 +13,18 @@ public class StaticBuffers : MonoBehaviour
     public static StaticBuffers Instance;
     void Start()
     {
-        if (ClientData.IsClientInitiator)
-        {
-            Sender.Instance.toggleSend = false;
-            Listener.Instance.toggleReceiving = true;
+        //if (ClientData.IsClientInitiator)
+        //{
+        //    Sender.Instance.toggleSend = false;
+        //    Listener.Instance.toggleReceiving = true;
 
 
-        }
-        else
-        {
-            Sender.Instance.toggleSend = true;
-            Listener.Instance.toggleReceiving = true;
-        }
+        //}
+        //else
+        //{
+        //    Sender.Instance.toggleSend = true;
+        //    Listener.Instance.toggleReceiving = true;
+        //}
 
         Instance = this;
     }

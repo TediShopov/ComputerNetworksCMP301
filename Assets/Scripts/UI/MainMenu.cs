@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -18,11 +19,21 @@ public class MainMenu: MonoBehaviour
     [SerializeField]
     public TMPro.TMP_InputField listenOnPortField;
 
+    [SerializeField]
+    TwoWayConnectionEstablisher twoWayConnection;
      void Update()
     {
-        if (Listener.Instance!=null && !Listener.Instance.IsBound )
+        //if (SocketComunication.ConnectionListener!=null && !SocketComunication.ConnectionListener.IsBound )
+        //{
+        //    ListenOnPort();
+        //}
+
+        if (SocketComunication.ConnectionListener.IsBound)
         {
-            ListenOnPort();
+            IPEndPoint ip = SocketComunication.ConnectionListener.LocalEndPoint as IPEndPoint;
+            listeningOnPortText.text = $"Listening on {ip.Port}"; 
+            listeningOnPortText.color=Color.green;
+
         }
 
         string statusString="";
@@ -34,15 +45,23 @@ public class MainMenu: MonoBehaviour
             statusText.color = Color.green;
             StartGame();
         }
-        if (Listener.Instance.IsReceiverConnected())
+        if (SocketComunication.Receiver.Connected)
         {
-            statusString += $" {Listener.Instance.GetReceiverEndPointNum()} -> {Listener.Instance.GetReceiverLocalPortNum()}";
+            IPEndPoint remoteIp = SocketComunication.Receiver.RemoteEndPoint as IPEndPoint;
+            IPEndPoint localIp = SocketComunication.Receiver.LocalEndPoint as IPEndPoint;
+
+            statusString += $" {remoteIp.Port} -> {localIp.Port}";
 
         }
 
-        if (Sender.Instance.IsSenderConnected())
+        if (SocketComunication.Sender.Connected)
         {
-            statusString += $" {Sender.Instance.GetEndPointPortNum()} -> {Sender.Instance.GetLocalPortNum()}";
+
+            IPEndPoint remoteIp = SocketComunication.Sender.RemoteEndPoint as IPEndPoint;
+            IPEndPoint localIp = SocketComunication.Sender.LocalEndPoint as IPEndPoint;
+
+
+            statusString += $" {remoteIp.Port} -> {localIp.Port}";
 
         }
        
@@ -53,56 +72,10 @@ public class MainMenu: MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
-    public void TwoWayConnectionEstablished() 
-    {
+    
+   
 
-    }
-
-    public void ListenOnPort() 
-    {
-        try
-        {
-            int portNum = int.Parse(listenOnPortField.text);
-            if (Listener.Instance != null)
-            {
-                if (Listener.Instance.StartListeningForConnections(portNum))
-                {
-                    listeningOnPortText.text = "Listening on: " + (Listener.Instance.GetBoundPortString());
-                    listeningOnPortText.color = Color.green;
-                }
-            }
-
-        }
-        catch (System.Exception)
-        {
-            if (Listener.Instance != null)
-            {
-                bool succeded = false;
-                try
-                {
-                    succeded=Listener.Instance.StartListeningForConnections(12000);
-                }
-                catch (System.Exception)
-                {
-
-                    succeded=Listener.Instance.StartListeningForConnections(13000);
-                }
-                if (succeded)
-                {
-                    listeningOnPortText.text = "Listening on: " + (Listener.Instance.GetBoundPortString());
-                    listeningOnPortText.color = Color.green;
-                }
-            }
-        }
-       
-
-        
-
-
-        
-    }
-
-    public void TryConnectToPort() 
+    public void TwoWayConnection() 
     {
         if (listeningOnPortText.text!=string.Empty)
         {
@@ -111,7 +84,10 @@ public class MainMenu: MonoBehaviour
 
             try
             {
+                
                  portNum = int.Parse(conntectToPort.text);
+                twoWayConnection.EstablishTwoWayConnection(portNum);
+
             }
             catch (System.Exception)
             {
@@ -121,9 +97,9 @@ public class MainMenu: MonoBehaviour
                 statusText.text = connectionStr;
                 statusText.color = Color.red;
             }
-            Sender.Instance.TrtConnectToPort(portNum);
-           
-          
+
+
+
 
 
         }

@@ -38,7 +38,7 @@ public class FighterController : MonoBehaviour
         _keysPressedThisFrame = new HashSet<KeyCode>();
         Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
         InputBuffer = GetComponent<InputBuffer>();
-        StartCoroutine(RefreshTimestamp());
+        //StartCoroutine(RefreshTimestamp());
     }
 
     // Update is called once per frame
@@ -60,21 +60,21 @@ public class FighterController : MonoBehaviour
         //{
         //InputBuffer.DebugPrint();
 
-        InputBuffer.SetBuffer(ProcessInputBuffer(InputBuffer.GetBuffer()));
+        ProcessInputBuffer(InputBuffer.GetBuffer().ToArray());
        //}
         animator.SetFloat("XSpeed", horizontalMovement.x);
     }
 
-    IEnumerator RefreshTimestamp()
-    {
+    //IEnumerator RefreshTimestamp()
+    //{
        
-         yield return new WaitForSeconds(0.1f);
+    //     yield return new WaitForSeconds(0.1f);
 
-        //_lastProcessedTs = 0;
+    //    //_lastProcessedTs = 0;
             
         
 
-    }
+    //}
 
     void OrientToEnemy(Transform enemyTransform) 
     {
@@ -91,7 +91,7 @@ public class FighterController : MonoBehaviour
         }
     }
 
-    Queue<InputElement> ProcessInputBuffer(Queue<InputElement> inputBuffer) 
+    void ProcessInputBuffer(InputElement[] inputBuffer) 
     {
 
 
@@ -106,7 +106,6 @@ public class FighterController : MonoBehaviour
         //If combos/special attack is not found 
 
 
-        var qAfterProcessing = new Queue<InputElement>();
 
         int before = _lastProcessedTs;
         if (this.InputBuffer.bufferState == InputBufferState.InputReceiver)
@@ -128,35 +127,37 @@ public class FighterController : MonoBehaviour
 
         }
 
-        while (inputBuffer.Count > 0)
+        int curr= FrameLimiter.FramesInPlay;
+        int low= this.InputBuffer.LowestFrameStamp;
+        int high= this.InputBuffer.HighestFrameStamp;
+        if (low < curr && curr< high)
         {
+           // Debug.LogError($"OK Frame {curr} in [{low} - {high}]");
+        }
+        else
+        {
+            if (low>curr)
+            {
+                Debug.LogError($"ERROR Lower By {low-curr}");
+            }
+            if (curr>high)
+            {
+                Debug.LogError($"ERROR Higher By {curr - high}");
 
-            var el = inputBuffer.Peek();
+            }
+        }
 
-
-            //Todo this will not aacount for multiple pressed keys at once
-            if (el.timeStamp > _lastProcessedTs && el.isProcessed == false && !_keysPressedThisFrame.Contains(el.key))
+        //Todo this will not aacount for multiple pressed keys at once
+        foreach (var el in inputBuffer)
+        {
+            
+            if (el.timeStamp == FrameLimiter.FramesInPlay && !_keysPressedThisFrame.Contains(el.key))
             {
                 _keysPressedThisFrame.Add(el.key);
                 ProcessAsSingleInput(el);
                 _lastProcessedTs = el.timeStamp;
-                el.isProcessed = true;
-
-                
             }
-            inputBuffer.Dequeue();
-                qAfterProcessing.Enqueue(el);
-
-            
-            
         }
-
-     
-           
-        
-
-        return qAfterProcessing;
-        
     }
 
     bool CheckFireball(InputElement[] inputElements) 
@@ -228,17 +229,12 @@ public class FighterController : MonoBehaviour
 
     }
 
-    
-
-   
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.LogWarning("Player Landed");
         isGrounded = true;
         animator.SetBool("Jumped", false);
-
-
     }
 
 

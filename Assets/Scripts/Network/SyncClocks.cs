@@ -5,6 +5,17 @@ using System.Linq;
 using System.Net.Sockets;
 using UnityEngine;
 
+public struct SyncClock
+{
+    // public bool unPause;
+    public bool isActive;               // If Client or initiator is responsible for filling timestamps
+    public double waitForHost;           // If set to > 0, Client has to wait for that amount of frames
+    public double initiatorSend;         // Time stamp on initiator send
+    public double clientReceive;         // Time Stamp on client receive
+    public double clientSend;            // Time stmap on client send
+    public double initiatorReceive;      // TIme stamp on initiator receive
+}
+
 //Class that is called when the game is paused at start of round to caluclate 
 // RTT and send unpause command at the correct time
 public class SyncClocks : MonoBehaviour
@@ -13,8 +24,6 @@ public class SyncClocks : MonoBehaviour
     List<double> _calculatedOneWayLatency;
     byte[] bufferBytes;
     int byteCount;
-    SocketAsyncEventArgs sendArgs;
-    SocketAsyncEventArgs recvArgs;
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +32,7 @@ public class SyncClocks : MonoBehaviour
 
         SyncClock syncClockMockPacket = DefaultSyncClockBuffer();
         byteCount = System.Runtime.InteropServices.Marshal.SizeOf(syncClockMockPacket);
+        bufferBytes = SocketComunication.RawSerialize(syncClockMockPacket);
         if (!ClientData.TwoWayConnectionEstablished())
         {
             throw new System.Exception("Problem establishing connection between sockets");
@@ -42,7 +52,7 @@ public class SyncClocks : MonoBehaviour
 
 
 
-
+        
         ClientData.IsPaused = true;
         FrameLimiter.Instance.FPSLimit = 9999;
 
@@ -72,83 +82,38 @@ public class SyncClocks : MonoBehaviour
             syncClock.initiatorSend = FrameLimiter.Instance.GetTimeSinceGameStartup();
 
             //Seriazlie it to the byte buffer
-            bufferBytes = Sender.RawSerialize(syncClock);
-
-            // Try to convert to send async
-            if (sendArgs == null)
-            {
-                sendArgs = new SocketAsyncEventArgs();
-                sendArgs.RemoteEndPoint = Sender.Instance.IPEndPoint;
-                sendArgs.SocketFlags = SocketFlags.None;
-            }
-            sendArgs.SetBuffer(bufferBytes, 0, byteCount);
-            bool sendAll = !Sender.Instance.sender.SendAsync(sendArgs);
-
+            bufferBytes = SocketComunication.RawSerialize(syncClock);
+            SocketComunication.DefaultSend(bufferBytes);
+        
             InitiatorReceive();
         }
         else
         {
             double avgLatenc = Queryable.Average(_calculatedOneWayLatency.AsQueryable());
 
-
             //Setup the sync clock packet to send
             syncClock.waitForHost = avgLatenc;
             //Seriazlie it to the byte buffer
-            bufferBytes = Sender.RawSerialize(syncClock);
-            sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(InitiatorFinalSend_Completed);
-            sendArgs.SetBuffer(bufferBytes, 0, byteCount);
-            bool sendAll = !Sender.Instance.sender.SendAsync(sendArgs);
-            if (sendAll)
-            {
-                InitiatorFinalSend_Completed(this,sendArgs);
-            }
-
-
+            bufferBytes = SocketComunication.RawSerialize(syncClock);
+            SocketComunication.DefaultSend(bufferBytes,InitiatorFinalSend_Completed);
         }
 
 
 
     }
+
+
+   
 
     void InitiatorReceive() 
     
     {
-        if (recvArgs == null)
-        {
-            recvArgs = new SocketAsyncEventArgs();
-            recvArgs.SetBuffer(bufferBytes, 0, byteCount);
-            recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(InitiatorReceive_Completed);
-            recvArgs.SocketFlags = SocketFlags.None;
-        }
-
-        bool receivedAll = !Listener.receiver.ReceiveAsync(recvArgs);
-        if (receivedAll)
-        {
-            InitiatorReceive_Completed(this, recvArgs);
-        }
-
+        SocketComunication.DefaultReceive(bufferBytes, InitiatorReceive_Completed);
     }
 
     void ClientReceiveAndSend() 
     {
-
-        if (recvArgs == null)
-        {
-            recvArgs = new SocketAsyncEventArgs();
-            recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ClientReceive_Completed);
-            recvArgs.SocketFlags = SocketFlags.None;
-         
-
-        }
-        recvArgs.SetBuffer(bufferBytes, 0, byteCount);
-
-        bool receivedAll = !Listener.receiver.ReceiveAsync(recvArgs);
-        if (receivedAll)
-        {
-            ClientReceive_Completed(this, recvArgs);
-        }
-
-
+        SocketComunication.DefaultReceive(bufferBytes, ClientReceive_Completed);
     }
     void ClientSend(SyncClock clock) 
     {
@@ -160,54 +125,55 @@ public class SyncClocks : MonoBehaviour
         }
 
         //Seriazlie it to the byte buffer
-        bufferBytes = Sender.RawSerialize(clock);
-        
-        SocketAsyncEventArgs clientSendArgs = new SocketAsyncEventArgs();
-        
-       // clientSendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ClientSend_Complete);
-        clientSendArgs.RemoteEndPoint = Sender.Instance.IPEndPoint;
-        clientSendArgs.SocketFlags = SocketFlags.None;
-        clientSendArgs.SetBuffer(bufferBytes, 0, byteCount);
-        
-        bool sendAll = !Sender.Instance.sender.SendAsync(clientSendArgs);
-       
+        bufferBytes = SocketComunication.RawSerialize(clock);
+        SocketComunication.DefaultSend(bufferBytes, ClientSend_Completed);
+    }
+
+    void ClientSend_Completed(object sender, SocketAsyncEventArgs e)
+    {
+        ClientReceiveAndSend();
     }
 
     void InitiatorFinalSend_Completed(object sender, SocketAsyncEventArgs e)
     {
         double avgLatenc = Queryable.Average(_calculatedOneWayLatency.AsQueryable());
+        Debug.LogError("Final Sync Clock Packet send");
         //Millisecond to wait for the information to arrive to the other peer
         long avgMsToWait = FrameLimiter.Instance.TickToMilliseconds(avgLatenc);
         FrameLimiter.Instance.WaitForMsAtEndOfFrame += avgMsToWait;
-        ClientData.IsPaused = false;
+        ClientData.IsPaused = true;
         FrameLimiter.Instance.FPSLimit = 60;
 
     }
     void ClientReceive_Completed(object sender, SocketAsyncEventArgs e)
     {
         //Deserialzie the received buffer
-        SyncClock syncClock = Listener.RawDeserialize<SyncClock>(bufferBytes, 0);
+        SyncClock syncClock = SocketComunication.RawDeserialize<SyncClock>(bufferBytes, 0);
 
         if (syncClock.waitForHost>0)
         {
             FrameLimiter.Instance.FPSLimit = 60;
 
-            ClientData.IsPaused = false;
+            ClientData.IsPaused = true;
         }
-        if (FrameLimiter.Instance != null)
+        else
         {
-            //Stamp the time off receive
-            syncClock.clientReceive = FrameLimiter.Instance.GetTimeSinceGameStartup();
-        }
+            if (FrameLimiter.Instance != null)
+            {
+                //Stamp the time off receive
+                syncClock.clientReceive = FrameLimiter.Instance.GetTimeSinceGameStartup();
+            }
 
-        // Try to convert to send async
-        ClientSend(syncClock);
+            // Try to convert to send async
+            ClientSend(syncClock);
+        }
+       
       
     }
 
     void InitiatorReceive_Completed(object sender, SocketAsyncEventArgs e) 
     {
-        SyncClock syncClock = Listener.RawDeserialize<SyncClock>(bufferBytes,0);
+        SyncClock syncClock = SocketComunication.RawDeserialize<SyncClock>(bufferBytes,0);
         syncClock.initiatorReceive = FrameLimiter.Instance.GetTimeSinceGameStartup();
         double RTT = ((syncClock.initiatorReceive - syncClock.initiatorSend)
                        - (syncClock.clientSend - syncClock.clientReceive));
@@ -217,7 +183,7 @@ public class SyncClocks : MonoBehaviour
         Debug.LogError($"oneWayLatencyApprox: {oneWayLatencyApprox}");
         double avgLatenc = Queryable.Average(_calculatedOneWayLatency.AsQueryable());
 
-        Debug.LogError($"latencyAvg: {avgLatenc}");
+        Debug.LogError($"latencyAvg: {avgLatenc} Time:{_calculatedOneWayLatency.Count}");
 
         InitiatorSend();
 

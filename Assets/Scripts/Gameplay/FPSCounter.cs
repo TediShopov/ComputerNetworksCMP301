@@ -3,7 +3,8 @@ using UnityEngine.UI;
 
 public class FPSCounter : MonoBehaviour
 {
-    public int avgFrameRate;
+    public int lastFrame;
+    public int DisplayEachXFrame;
     TMPro.TMP_Text textContainter;
     private void Start()
     {
@@ -11,9 +12,11 @@ public class FPSCounter : MonoBehaviour
     }
     public void Update()
     {
-        float current = 0;
-        current = (int)(1f / Time.unscaledDeltaTime);
-        avgFrameRate = (int)current;
-        textContainter.text = avgFrameRate.ToString() + " FPS";
+        if (FrameLimiter.FramesInPlay % DisplayEachXFrame == 0)
+        {
+            lastFrame = FrameLimiter.FramesInPlay;
+        }
+        textContainter.text = FrameLimiter.FramesInPlay.ToString() + " On Frame";
+
     }
 }
