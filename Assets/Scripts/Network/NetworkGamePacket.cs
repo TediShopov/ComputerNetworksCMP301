@@ -23,6 +23,9 @@ public class NetworkGamePacket : MonoBehaviour
 
     public byte[] receiveByteBuffer { get; set; }
 
+
+    private readonly object receiveLock = new object();
+
     public byte[] sendByteBuffer { get; set; }
     // Start is called before the first frame update
     void Start()
@@ -33,8 +36,6 @@ public class NetworkGamePacket : MonoBehaviour
         sendByteBuffer = SocketComunication.RawSerialize(gp);
         sendFinished = true;
         reocuringReceiveEvent = true;
-
-
     }
 
    
@@ -42,7 +43,15 @@ public class NetworkGamePacket : MonoBehaviour
     GamePacket PrepareGamePacket() 
     {
         GamePacket gp;
-        gp.InputElements=StaticBuffers.Instance.PlayerBuffer.LastFrame._inputInFrame;
+        if (StaticBuffers.Instance.PlayerBuffer.LastFrame!=null)
+        {
+            gp.InputElements = StaticBuffers.Instance.PlayerBuffer.LastFrame._inputInFrame;
+
+        }
+        else
+        {
+            throw new System.Exception("Error send empty player buffer");
+        }
         return gp;
     }
 
@@ -69,8 +78,12 @@ public class NetworkGamePacket : MonoBehaviour
 
             var gamePacket=PrepareGamePacket();
             sendByteBuffer = SocketComunication.RawSerialize(gamePacket);
-
+           // Debug.LogError($"Send Bytes for frame {FrameLimiter.Instance.FramesInPlay}");
             SocketComunication.DefaultSend(sendByteBuffer, SendGamePacket_Completed);
+        }
+        else
+        {
+            Debug.LogError("Couldnt send input on this frame");
         }
 
     }
@@ -82,7 +95,24 @@ public class NetworkGamePacket : MonoBehaviour
 
     public void ReceiveGamePacket_Reoccur(object e, SocketAsyncEventArgs arg)
     {
-        LastReceivedGamePacket = SocketComunication.RawDeserialize<GamePacket>(arg.Buffer,0);
+        lock (receiveLock)
+        {
+            LastReceivedGamePacket = SocketComunication.RawDeserialize<GamePacket>(arg.Buffer, 0);
+            //TODO probably will need a lock
+
+            //Could run before input buffer objects are init
+            if (StaticBuffers.Instance != null)
+            {
+                if (StaticBuffers.Instance.EnemyBuffer != null)
+                {
+                    StaticBuffers.Instance.EnemyBuffer.AddNewFrame(
+                       new InputFrame(LastReceivedGamePacket.InputElements));
+                }
+            }
+
+        }
+
+
         if (reocuringReceiveEvent)
         {
             SocketComunication.DefaultReceive(receiveByteBuffer, ReceiveGamePacket_Reoccur);

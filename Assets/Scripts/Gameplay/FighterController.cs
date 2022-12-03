@@ -56,26 +56,13 @@ public class FighterController : MonoBehaviour
         {
             _lastProcessedTs=0;
         }
-        //lock (InputBuffer.bufferLock)
-        //{
-        //InputBuffer.DebugPrint();
-
+       
         ProcessInputBuffer(InputBuffer.GetFirstFrame());
-       //}
+       
         animator.SetFloat("XSpeed", horizontalMovement.x);
     }
 
-    //IEnumerator RefreshTimestamp()
-    //{
-       
-    //     yield return new WaitForSeconds(0.1f);
-
-    //    //_lastProcessedTs = 0;
-            
-        
-
-    //}
-
+  
     void OrientToEnemy(Transform enemyTransform) 
     {
         Vector2 enemyPos;
@@ -93,7 +80,10 @@ public class FighterController : MonoBehaviour
 
     void ProcessInputBuffer(InputElement[] inputFrame) 
     {
-
+        if (inputFrame == null)
+        {
+            return;
+        }
 
        
         //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
@@ -104,49 +94,6 @@ public class FighterController : MonoBehaviour
         //}
 
         //If combos/special attack is not found 
-
-
-
-        int before = _lastProcessedTs;
-        if (this.InputBuffer.bufferState == InputBufferState.InputReceiver)
-        {
-            if (_lastProcessedTs != FrameLimiter.FramesInPlay)
-            {
-                int diff = FrameLimiter.FramesInPlay - _lastProcessedTs;
-              //  Debug.LogError($"Current frames {FrameLimiter.FramesInPlay} Recv frames {_lastProcessedTs} Diff: {diff}  ");
-                //int diff = FrameLimiter.FramesInPlay - _lastProcessedTs;
-                //Debug.LogError($"Diff between Frames and timestamp {diff}");
-                //if (diff>5)
-                //{
-                //    if (!ClientData.IsClientInitiator)
-                //    {
-                //     //   FrameLimiter.Instance.WaitForFrames(diff);
-                //    }
-                //}
-            }
-
-        }
-
-        //  int curr= FrameLimiter.FramesInPlay;
-        ////  int low= this.InputBuffer.LowestFrameStamp;
-        // // int high= this.InputBuffer.HighestFrameStamp;
-        //  if (low < curr && curr< high)
-        //  {
-        //     // Debug.LogError($"OK Frame {curr} in [{low} - {high}]");
-        //  }
-        //  else
-        //  {
-        //      if (low>curr)
-        //      {
-        //          //Debug.LogError($"ERROR Lower By {low-curr}");
-        //      }
-        //      if (curr>high)
-        //      {
-        //          //Debug.LogError($"ERROR Higher By {curr - high}");
-
-        //      }
-        //  }
-
         //Todo this will not aacount for multiple pressed keys at once
         if (inputFrame==null)
         {
@@ -154,9 +101,9 @@ public class FighterController : MonoBehaviour
         }
         foreach (var el in inputFrame)
         {
-            int mismtach = el.timeStamp - FrameLimiter.FramesInPlay;
-            Debug.LogError($"Mismatch Between Current Frame and timestamp = {mismtach}");
-            if (el.timeStamp == FrameLimiter.FramesInPlay && !_keysPressedThisFrame.Contains(el.key))
+            int mismtach = el.timeStamp - FrameLimiter.Instance.FramesInPlay; 
+           Debug.LogError($"Mismatch Between Current Frame and timestamp = {mismtach}");
+            if (el.timeStamp == FrameLimiter.Instance.FramesInPlay && !_keysPressedThisFrame.Contains(el.key))
             {
                 _keysPressedThisFrame.Add(el.key);
                 ProcessAsSingleInput(el);

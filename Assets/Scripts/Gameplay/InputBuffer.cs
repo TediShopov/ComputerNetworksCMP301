@@ -36,7 +36,7 @@ public class InputFrame
                 KeyCode keyCode = allowedKeys[i];
                 _inputInFrame[i].key = keyCode;
             }
-            _inputInFrame[i].timeStamp = FrameLimiter.FramesInPlay + DelayInput;
+            _inputInFrame[i].timeStamp = FrameLimiter.Instance.FramesInPlay + DelayInput;
         }
     }
 
@@ -56,8 +56,7 @@ public class InputBuffer : MonoBehaviour
 
     // public readonly object bufferLock = new object();
     public InputBufferState bufferState;
-    //public uint MaxInputs;
-    //private InputElement[] _inputElements;
+    
 
    
     [SerializeField]
@@ -73,12 +72,26 @@ public class InputBuffer : MonoBehaviour
 
     public float RefreshBufferAfter;
     // Start is called before the first frame update
+    public InputFrame LastFrame { get; set; }
 
-    public int LowestFrameStamp  { 
-        get { 
-            return this.BufferedInput.ToArray()[0]._inputInFrame[0].timeStamp; 
-        } }
-    public int HighestFrameStamp { get {return LowestFrameStamp + DelayInput; } }
+    //public int LowestFrameStamp {
+    //    get {
+    //        if (this.BufferedInput == null || this.BufferedInput.Count==0)
+    //        {
+    //            return -1;
+    //        }
+    //        return this.BufferedInput.Peek()._inputInFrame[0].timeStamp; 
+    //    } }
+    //public int HighestFrameStamp { 
+    //    get 
+    //    {
+    //        if (LastFrame != null)
+    //        {
+    //            return LastFrame._inputInFrame[0].timeStamp;
+
+    //        }
+    //        return -1;
+    //    } }
 
 
     void Start()
@@ -90,14 +103,7 @@ public class InputBuffer : MonoBehaviour
         BufferedInput = new Queue<InputFrame>();
         // _keyDownBuffer = new Queue<InputElement>();
 
-        //AddKey(KeyCode.None);
-        //if (bufferState == InputBufferState.InputCollector)
-        //{
-        //    for (int i = 0; i < DelayInput; i++)
-        //    {
-        //        AddNewFrame();
-        //    }
-        //}
+      
        
 
 
@@ -128,15 +134,14 @@ public class InputBuffer : MonoBehaviour
         }
         else
         {
-            AddNewFrame(new InputFrame(NetworkGamePacket.LastReceivedGamePacket.InputElements));
+           // AddNewFrame(new InputFrame(NetworkGamePacket.LastReceivedGamePacket.InputElements));
         }
 
     }
 
-    public InputFrame LastFrame { get; set; }
   
 
-    void AddNewFrame(InputFrame inputFrame=null) 
+    public void AddNewFrame(InputFrame inputFrame=null) 
     {
         if (inputFrame==null)
         {
@@ -152,25 +157,13 @@ public class InputBuffer : MonoBehaviour
     }
     public InputElement[] GetFirstFrame() 
     {
-        return this.BufferedInput.Peek()._inputInFrame;
+        if (this.BufferedInput !=null && this.BufferedInput.Count>0)
+        {
+            return this.BufferedInput.Peek()._inputInFrame;
+        }
+        return new InputElement[0];
     }
-    //public void SetBuffer() 
-    //{
-    //    var elements = NetworkGamePacket.LastReceivedGamePacket.InputElements;
-    //    this._inputElements.Clear();
-    //    for (int i = 0; i < elements.Length; i++)
-    //    {
-    //        var el = elements[i];
-    //        this._inputElements.Enqueue(el);
-    //    }
-    //}
-
-    //public void SetBuffer()
-    //{
-    //    this._inputElements = NetworkGamePacket.LastReceivedGamePacket.InputElements;
-    //}
-
-
+    
 
     IEnumerator DebugPrintAfter()
     {
@@ -214,43 +207,5 @@ public class InputBuffer : MonoBehaviour
         Debug.LogError(strAllInputBuff);
     }
 
-    //public void AddKeyDown(KeyCode k)
-    //{
-    //    this._keyDownBuffer.Enqueue(new InputElement { key = k, timeStamp = FrameLimiter.FramesInPlay });
-    //    if (_keyDownBuffer.Count > MaxKeyDownInputs)
-    //    {
-    //        this._keyDownBuffer.Dequeue();
-    //    }
-    //}
-    //public void AddKeyDown(KeyCode k)
-    //{
-    //    this._keyDownBuffer.Enqueue(new InputElement { key=k, timeStamp=FrameLimiter.FramesInPlay});
-    //    if (_keyDownBuffer.Count > MaxKeyDownInputs)
-    //    {
-    //        this._keyDownBuffer.Dequeue();
-    //    }
-    //}
-
-
-    //public void ToggleKey(int index) 
-    //{
-    //    KeyCode keyCode = allowedKeysArr[index];
-    //    _inputElements[index] = (new InputElement { key = keyCode, timeStamp = FrameLimiter.FramesInPlay + DelayInput });
-    //        }
-
-
-    //public InputElement[] GetBuffer()
-    //{
-    //    return this._inputElements;
-    //}
-
-    //public Queue<InputElement> GetBuffer() {
-    //        return this._inputElements;
-    // }
-    //public void SetBuffer(Queue<InputElement> b) {
-    //        this._inputElements = b;
-    //}
-
-    //public Queue<InputElement> GetKeyDownBuffer() { return this._keyDownBuffer; }
-
+  
 }

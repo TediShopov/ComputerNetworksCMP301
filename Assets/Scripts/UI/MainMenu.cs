@@ -39,6 +39,7 @@ public class MainMenu: MonoBehaviour
             statusText.text = statusString;
             statusText.color = Color.green;
             StartGame();
+            return;
         }
         if (SocketComunication.Receiver.Connected)
         {

@@ -12,11 +12,11 @@ public class FPSCounter : MonoBehaviour
     }
     public void Update()
     {
-        if (FrameLimiter.FramesInPlay % DisplayEachXFrame == 0)
+        if (FrameLimiter.Instance.FramesInPlay % DisplayEachXFrame == 0)
         {
-            lastFrame = FrameLimiter.FramesInPlay;
+            lastFrame = FrameLimiter.Instance.FramesInPlay;
         }
-        textContainter.text = FrameLimiter.FramesInPlay.ToString() + " On Frame";
+        textContainter.text = FrameLimiter.Instance.FramesInPlay.ToString() + " On Frame";
 
     }
 }

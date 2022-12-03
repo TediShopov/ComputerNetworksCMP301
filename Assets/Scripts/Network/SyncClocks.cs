@@ -20,6 +20,7 @@ public struct SyncClock
 // RTT and send unpause command at the correct time
 public class SyncClocks : MonoBehaviour
 {
+    private bool _unpauseGameNextFrame = false;
     public int TimesToCalculateRTT;
     List<double> _calculatedOneWayLatency;
     byte[] bufferBytes;
@@ -38,7 +39,7 @@ public class SyncClocks : MonoBehaviour
             throw new System.Exception("Problem establishing connection between sockets");
         }
 
-        
+        ClientData.IsPaused = true;
 
 
         if (ClientData.IsClientInitiator)
@@ -53,9 +54,17 @@ public class SyncClocks : MonoBehaviour
 
 
         
-        ClientData.IsPaused = true;
-        FrameLimiter.Instance.FPSLimit = 9999;
+     
 
+    }
+
+    private void Update()
+    {
+        if (_unpauseGameNextFrame)
+        {
+            _unpauseGameNextFrame = false;
+            ClientData.IsPaused = false;
+        }
     }
 
 
@@ -141,9 +150,8 @@ public class SyncClocks : MonoBehaviour
         //Millisecond to wait for the information to arrive to the other peer
         long avgMsToWait = FrameLimiter.Instance.TickToMilliseconds(avgLatenc);
         FrameLimiter.Instance.WaitForMsAtEndOfFrame += avgMsToWait;
-        ClientData.IsPaused = false;
-        FrameLimiter.Instance.FPSLimit = 60;
 
+        _unpauseGameNextFrame = true;
     }
     void ClientReceive_Completed(object sender, SocketAsyncEventArgs e)
     {
@@ -154,7 +162,7 @@ public class SyncClocks : MonoBehaviour
         {
             FrameLimiter.Instance.FPSLimit = 60;
 
-            ClientData.IsPaused = false;
+            _unpauseGameNextFrame = true;
         }
         else
         {

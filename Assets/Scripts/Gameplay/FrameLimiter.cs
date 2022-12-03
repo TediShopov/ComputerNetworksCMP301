@@ -10,7 +10,7 @@ public class FrameLimiter : MonoBehaviour
 {
     public  bool ToggleSleep=false;
     public long SleepForMs = 160;
-    private static Int32 _framesInPlay;
+    private  Int32 _framesInPlay;
 
 
     public double FPSLimit;
@@ -18,7 +18,7 @@ public class FrameLimiter : MonoBehaviour
     private long lastTime;
 
     public static FrameLimiter Instance { get; set; }
-    public static Int32 FramesInPlay
+    public  Int32 FramesInPlay
     {
         get { return _framesInPlay; }
         private set { _framesInPlay = value; }
@@ -34,7 +34,6 @@ public class FrameLimiter : MonoBehaviour
         lastTime= Stopwatch.ElapsedTicks;
         double sToWait = (1.0 / FPSLimit) ;
         long tickToWait = (long)((double)Stopwatch.Frequency / FPSLimit);
-
         FPSLimitTicks = (long)(tickToWait);
     }
 
