@@ -6,24 +6,7 @@ using UnityEngine;
 
 public class ConfirmFrameWait : MonoBehaviour
 {
-    //static int GetConfirmFrame(InputBuffer b, InputBuffer b2) 
-    //{
-    //    // 4 5 6 
-    //    //   5  6  7
-    //    int maxStartFrameStamp = Mathf.Max(b.LowestFrameStamp, b2.LowestFrameStamp);
-    //    int minEndFrameStamp = Mathf.Min(b.HighestFrameStamp, b2.HighestFrameStamp);
-
-    //    // 3 4 5 
-    //    //       6 7 8
-    //    //Todo check if this is ever reached 
-    //    //Todo check how exactly the confirm frame should be calculated !
-    //    //if (maxStartFrameStamp < minEndFrameStamp)
-    //    //{
-    //    //    return -1;
-    //    //}
-    //    return minEndFrameStamp;
-
-    //}
+  
 
     static int GetConfirmFrame(InputBuffer b, InputBuffer b2)
     {
@@ -66,8 +49,7 @@ public class ConfirmFrameWait : MonoBehaviour
                     ($" Simulation should wait Confirm Frame is still: {GetConfirmFrame()}");
                 //Wait till frames in play
                 SpinWait.SpinUntil((() => { return (FrameLimiter.Instance.FramesInPlay  <= GetConfirmFrame()); }), _indefiniteWaitTime);
-                //why passes ffs dkdc
-                int a = 3;
+               
             }
         }
 

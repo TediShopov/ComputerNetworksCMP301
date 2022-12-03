@@ -74,26 +74,6 @@ public class InputBuffer : MonoBehaviour
     // Start is called before the first frame update
     public InputFrame LastFrame { get; set; }
 
-    //public int LowestFrameStamp {
-    //    get {
-    //        if (this.BufferedInput == null || this.BufferedInput.Count==0)
-    //        {
-    //            return -1;
-    //        }
-    //        return this.BufferedInput.Peek()._inputInFrame[0].timeStamp; 
-    //    } }
-    //public int HighestFrameStamp { 
-    //    get 
-    //    {
-    //        if (LastFrame != null)
-    //        {
-    //            return LastFrame._inputInFrame[0].timeStamp;
-
-    //        }
-    //        return -1;
-    //    } }
-
-
     void Start()
     {
         allowedKeysArr = new KeyCode[] { KeyCode.Space, KeyCode.S, KeyCode.A, KeyCode.D };
@@ -102,22 +82,6 @@ public class InputBuffer : MonoBehaviour
         //_inputElements = new InputElement[5];
         BufferedInput = new Queue<InputFrame>();
         // _keyDownBuffer = new Queue<InputElement>();
-
-      
-       
-
-
-
-        ////TODO priority is important
-       
-        //if (bufferState == InputBufferState.InputReceiver)
-        //{
-        //    //TODO check if event delegate is still active
-
-        //    Listener.Instance.OnReceive += SetBuffer;
-        //}
-        //Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
-
     }
 
     // Update is called once per frame
@@ -132,11 +96,7 @@ public class InputBuffer : MonoBehaviour
             AddNewFrame();
        
         }
-        else
-        {
-           // AddNewFrame(new InputFrame(NetworkGamePacket.LastReceivedGamePacket.InputElements));
-        }
-
+        //Enemy buffer is updated on another thread when Socket Receive Completes
     }
 
   
