@@ -15,13 +15,13 @@ public class ConfirmFrameWait : MonoBehaviour
         {
             return -1;
         }
-        if (b.BufferedInput.Peek()._inputInFrame[0].timeStamp != b2.BufferedInput.Peek()._inputInFrame[0].timeStamp)
+        if (b.BufferedInput.Peek().TimeStamp != b2.BufferedInput.Peek().TimeStamp)
         {
             return -1;
         }
         else
         {
-           return b2.LastFrame._inputInFrame[0].timeStamp;
+           return b2.LastFrame.TimeStamp;
         }
        
 

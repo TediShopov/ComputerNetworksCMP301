@@ -21,19 +21,20 @@ public class FighterController : MonoBehaviour
     private bool isCrouched = false;
     private Vector3 horizontalMovement;
 
-    private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidbody2d;
-    private Animator animator;
     public InputBuffer InputBuffer;
     private int _lastProcessedTs;
     private HashSet<KeyCode> _keysPressedThisFrame;
 
+    [SerializeField]
+    Animator animator;
+    [SerializeField]
+    SpriteRenderer spriteRenderer;
     // Start is called before the first frame update
     void Start()
     {
         _lastProcessedTs = 0;
-        spriteRenderer =GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
+      
         rigidbody2d = GetComponent<Rigidbody2D>();
         _keysPressedThisFrame = new HashSet<KeyCode>();
         Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
@@ -77,15 +78,14 @@ public class FighterController : MonoBehaviour
             spriteRenderer.flipX = false;
         }
     }
-
-    void ProcessInputBuffer(InputElement[] inputFrame) 
+    public int OffsetGameFrame=0;
+    int GetGameFrame() 
     {
-        if (inputFrame == null)
-        {
-            return;
-        }
-
-       
+        return FrameLimiter.Instance.FramesInPlay + OffsetGameFrame;
+    }
+    void ProcessInputBuffer(InputFrame inputFrame) 
+    {
+      
         //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
 
         //if (CheckFireball(keyDownBuff.ToArray()))
@@ -99,17 +99,26 @@ public class FighterController : MonoBehaviour
         {
             return;
         }
-        foreach (var el in inputFrame)
+
+        if (OffsetGameFrame!=0)
         {
-            int mismtach = el.timeStamp - FrameLimiter.Instance.FramesInPlay; 
-           Debug.LogError($"Mismatch Between Current Frame and timestamp = {mismtach}");
-            if (el.timeStamp == FrameLimiter.Instance.FramesInPlay && !_keysPressedThisFrame.Contains(el.key))
-            {
-                _keysPressedThisFrame.Add(el.key);
-                ProcessAsSingleInput(el);
-                _lastProcessedTs = el.timeStamp;
-            }
+            int mismtach = inputFrame.TimeStamp - GetGameFrame();
+            Debug.LogError($"Mismatch Between Current Frame and timestamp = {mismtach}");
         }
+       
+        if (inputFrame.TimeStamp == GetGameFrame())
+        {
+            foreach (var el in inputFrame._inputInFrame)
+            {
+                if (!_keysPressedThisFrame.Contains(el.key))
+                {
+                    _keysPressedThisFrame.Add(el.key);
+                    ProcessAsSingleInput(el);
+                }
+            }
+            _lastProcessedTs = inputFrame.TimeStamp;
+        }
+
     }
 
     bool CheckFireball(InputElement[] inputElements) 

@@ -5,12 +5,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-[StructLayout(LayoutKind.Explicit, Size = 8)]
+[StructLayout(LayoutKind.Explicit, Size = 4)]
 public struct InputElement 
 {
     [FieldOffset(0)]
-    public Int32 timeStamp; //4 bytes
-    [FieldOffset(4)]
     public KeyCode key;     //4 bytes
 }
 
@@ -23,6 +21,7 @@ public enum InputBufferState
 public class InputFrame 
 {
     public InputElement[] _inputInFrame;
+    public Int32 TimeStamp { get; set; }
     int DelayInput = 0;
     public InputFrame(KeyCode[] allowedKeys,int delay=0)
     {
@@ -36,12 +35,13 @@ public class InputFrame
                 KeyCode keyCode = allowedKeys[i];
                 _inputInFrame[i].key = keyCode;
             }
-            _inputInFrame[i].timeStamp = FrameLimiter.Instance.FramesInPlay + DelayInput;
+            TimeStamp = FrameLimiter.Instance.FramesInPlay + DelayInput;
         }
     }
 
-    public InputFrame(InputElement[] elements)
+    public InputFrame(InputElement[] elements, Int32 timestamp)
     {
+        this.TimeStamp = timestamp;
         this._inputInFrame = elements;
     }
 
@@ -66,6 +66,7 @@ public class InputBuffer : MonoBehaviour
 
     public float DebugOutputTime;
 
+    public InputBuffer RedirectDequedInputFramesTo;
     //private Queue<InputElement> _keyDownBuffer;
     //Refreshed buffer after seconds if new key has not been received the meantime
     //public uint MaxKeyDownInputs;
@@ -109,19 +110,23 @@ public class InputBuffer : MonoBehaviour
         }
         if (BufferedInput.Count > DelayInput)
         {
-            BufferedInput.Dequeue();
+            var deqInputFrame=BufferedInput.Dequeue();
+            if (RedirectDequedInputFramesTo != null)
+            {
+                RedirectDequedInputFramesTo.AddNewFrame(deqInputFrame);
+            }
         }
         BufferedInput.Enqueue(inputFrame);
         LastFrame = inputFrame;
 
     }
-    public InputElement[] GetFirstFrame() 
+    public InputFrame GetFirstFrame() 
     {
         if (this.BufferedInput !=null && this.BufferedInput.Count>0)
         {
-            return this.BufferedInput.Peek()._inputInFrame;
+            return this.BufferedInput.Peek();
         }
-        return new InputElement[0];
+        return new InputFrame(new InputElement[0],-1);
     }
     
 

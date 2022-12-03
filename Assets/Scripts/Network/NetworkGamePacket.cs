@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -7,6 +8,8 @@ using UnityEngine;
 
 public struct GamePacket
 {
+   
+    public Int32 TimeStamp; //4 bytes
     //The Input Data to send
     [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 4)]
     public InputElement[] InputElements;
@@ -31,6 +34,7 @@ public class NetworkGamePacket : MonoBehaviour
     void Start()
     {
         GamePacket gp;
+        gp.TimeStamp = -1;
         gp.InputElements = new InputElement[10];
         receiveByteBuffer = SocketComunication.RawSerialize(gp);
         sendByteBuffer = SocketComunication.RawSerialize(gp);
@@ -43,8 +47,10 @@ public class NetworkGamePacket : MonoBehaviour
     GamePacket PrepareGamePacket() 
     {
         GamePacket gp;
+        
         if (StaticBuffers.Instance.PlayerBuffer.LastFrame!=null)
         {
+            gp.TimeStamp = StaticBuffers.Instance.PlayerBuffer.LastFrame.TimeStamp;
             gp.InputElements = StaticBuffers.Instance.PlayerBuffer.LastFrame._inputInFrame;
 
         }
@@ -106,7 +112,7 @@ public class NetworkGamePacket : MonoBehaviour
                 if (StaticBuffers.Instance.EnemyBuffer != null)
                 {
                     StaticBuffers.Instance.EnemyBuffer.AddNewFrame(
-                       new InputFrame(LastReceivedGamePacket.InputElements));
+                       new InputFrame(LastReceivedGamePacket.InputElements,LastReceivedGamePacket.TimeStamp));
                 }
             }
 
