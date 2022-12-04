@@ -64,7 +64,7 @@ public class NetworkGamePacket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (ClientData.IsPaused || !ClientData.TwoWayConnectionEstablished())
+        if (ClientData.Pause || !ClientData.TwoWayConnectionEstablished())
         {
             return;
         }

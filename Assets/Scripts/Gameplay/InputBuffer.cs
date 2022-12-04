@@ -88,7 +88,7 @@ public class InputBuffer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (ClientData.IsPaused)
+        if (ClientData.Pause)
         {
             return;
         }

@@ -41,7 +41,7 @@ public class ConfirmFrameWait : MonoBehaviour
         //If next frame is bigger than the confirm frame
         //not enough input to proceed simulation
 
-        if (!ClientData.IsPaused)
+        if (!ClientData.Pause)
         {
             if (FrameLimiter.Instance.FramesInPlay  > GetConfirmFrame())
             {
@@ -49,7 +49,6 @@ public class ConfirmFrameWait : MonoBehaviour
                     ($" Simulation should wait Confirm Frame is still: {GetConfirmFrame()}");
                 //Wait till frames in play
                 SpinWait.SpinUntil((() => { return (FrameLimiter.Instance.FramesInPlay  <= GetConfirmFrame()); }), _indefiniteWaitTime);
-               
             }
         }
 

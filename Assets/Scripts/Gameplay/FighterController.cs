@@ -42,25 +42,90 @@ public class FighterController : MonoBehaviour
         //StartCoroutine(RefreshTimestamp());
     }
 
+
+    public bool RollbackActivatable=false;
+    public bool RollackActive=false;
+
+
+    public void ResimulateInput(Queue<InputFrame> inputFrames,int frames) 
+    {
+        for (int i = 0; i < frames; i++)
+        {
+            //UPDATE METHOD
+            horizontalMovement = new Vector3(0, 0, 0);
+
+            _keysPressedThisFrame.Clear();
+            OrientToEnemy(enemy.transform);
+
+            //Simulate the input buffer as the frame it was send in
+            // this will always pass
+            var inputFrame = inputFrames.Dequeue();
+            ProcessInputBuffer(inputFrame, inputFrame.TimeStamp);
+
+            animator.SetFloat("XSpeed", horizontalMovement.x);
+        }
+
+
+       
+    }
     // Update is called once per frame
     void Update()
     {
-        if (ClientData.IsPaused)
+       
+        if (RollbackActivatable)
+        {
+            //if (Input.GetKeyDown(KeyCode.R))
+            //{
+
+            //    RollackActive = !RollackActive;
+            //    Debug.LogError($"Rollback set to {RollackActive}");
+            //    if (RollackActive)
+            //    {
+            //        ClientData.Pause = true;
+            //        Debug.LogError($"Game paused state set to {ClientData.Pause}");
+            //    }
+
+            //}
+            //if (RollackActive)
+            //{
+            //In this mode the game should be paused and each key press should
+            //try and simulate a frame ahead
+            if (!ClientData.Pause)
+            {
+                if (Input.GetKeyDown(KeyCode.F))
+                {
+                    ClientData.Pause = true;
+
+                    Debug.LogError($"Resimulating {InputBuffer.BufferedInput.Count} Frames");
+                    ResimulateInput(InputBuffer.BufferedInput, InputBuffer.BufferedInput.Count);
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                ClientData.Pause = false;
+
+            }
+
+
+            // }
+        }
+
+        if (ClientData.Pause)
         {
             return;
         }
+
         horizontalMovement = new Vector3(0, 0, 0);
 
-        _keysPressedThisFrame.Clear();
-        OrientToEnemy(enemy.transform);
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            _lastProcessedTs=0;
-        }
-       
-        ProcessInputBuffer(InputBuffer.GetFirstFrame());
-       
-        animator.SetFloat("XSpeed", horizontalMovement.x);
+            _keysPressedThisFrame.Clear();
+            OrientToEnemy(enemy.transform);
+
+            ProcessInputBuffer(InputBuffer.GetFirstFrame(),GetGameFrame());
+
+            animator.SetFloat("XSpeed", horizontalMovement.x);
+        
+      
     }
 
   
@@ -83,7 +148,7 @@ public class FighterController : MonoBehaviour
     {
         return FrameLimiter.Instance.FramesInPlay + OffsetGameFrame;
     }
-    void ProcessInputBuffer(InputFrame inputFrame) 
+    void ProcessInputBuffer(InputFrame inputFrame,int frameToSimulate=0) 
     {
       
         //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
@@ -100,13 +165,9 @@ public class FighterController : MonoBehaviour
             return;
         }
 
-        if (OffsetGameFrame!=0)
-        {
-            int mismtach = inputFrame.TimeStamp - GetGameFrame();
-            Debug.LogError($"Mismatch Between Current Frame and timestamp = {mismtach}");
-        }
+      
        
-        if (inputFrame.TimeStamp == GetGameFrame())
+        if (inputFrame.TimeStamp == frameToSimulate)
         {
             foreach (var el in inputFrame._inputInFrame)
             {
@@ -166,21 +227,18 @@ public class FighterController : MonoBehaviour
 
         if (!isCrouched)
         {
-            //TODO refacttor to input
             if (IsKey(e, KeyCode.D))
             {
                 horizontalMovement.x = 1;
-                // renderer.sprite = MoveForward;
             }
             if (IsKey(e, KeyCode.A))
             {
                 horizontalMovement.x = -1;
-                //  renderer.sprite = MoveBackward;
             }
         }
-
+        
         //Move in the direction of the player input
-        rigidbody2d.transform.position += horizontalMovement * Time.deltaTime * moveSpeed;
+        rigidbody2d.transform.position += horizontalMovement /** Time.deltaTime*/ * moveSpeed * 0.01f;
         //However the animation should be fliped if needed
         if (spriteRenderer.flipX)
         {

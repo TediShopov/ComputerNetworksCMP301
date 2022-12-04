@@ -39,7 +39,7 @@ public class SyncClocks : MonoBehaviour
             throw new System.Exception("Problem establishing connection between sockets");
         }
 
-        ClientData.IsPaused = true;
+        ClientData.Pause = true;
 
 
         if (ClientData.IsClientInitiator)
@@ -63,7 +63,7 @@ public class SyncClocks : MonoBehaviour
         if (_unpauseGameNextFrame)
         {
             _unpauseGameNextFrame = false;
-            ClientData.IsPaused = false;
+            ClientData.Pause = false;
         }
     }
 

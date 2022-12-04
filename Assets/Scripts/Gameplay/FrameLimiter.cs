@@ -25,7 +25,7 @@ public class FrameLimiter : MonoBehaviour
     }
 
 
-    private Stopwatch Stopwatch;
+    public Stopwatch Stopwatch;
     private void Awake()
     {
         Instance = this;
@@ -79,7 +79,7 @@ public class FrameLimiter : MonoBehaviour
     {
         if (FPSLimit == 0.0) return;
 
-        if (!ClientData.IsPaused)
+        if (!ClientData.Pause)
         {
             FramesInPlay++;
         }
