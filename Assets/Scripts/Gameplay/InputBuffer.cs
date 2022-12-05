@@ -52,10 +52,10 @@ public class InputBuffer : MonoBehaviour
 {
 
     //TODO make buffer only accpets keys that do sth in the game
-    public KeyCode[] allowedKeysArr;
+    public KeyCode[] AllowedKeys;
 
     // public readonly object bufferLock = new object();
-    public InputBufferState bufferState;
+    public InputBufferState BufferState;
     
 
    
@@ -77,7 +77,8 @@ public class InputBuffer : MonoBehaviour
 
     void Start()
     {
-        allowedKeysArr = new KeyCode[] { KeyCode.Space, KeyCode.S, KeyCode.A, KeyCode.D };
+        AllowedKeys = new KeyCode[] { KeyCode.Space, KeyCode.S, KeyCode.A, KeyCode.D };
+
         StartCoroutine(DebugPrintAfter());
         StartCoroutine(DeleteBufferAter());
         //_inputElements = new InputElement[5];
@@ -92,7 +93,7 @@ public class InputBuffer : MonoBehaviour
         {
             return;
         }
-        if (bufferState == InputBufferState.InputCollector)
+        if (BufferState == InputBufferState.InputCollector)
         {
             AddNewFrame();
        
@@ -106,7 +107,7 @@ public class InputBuffer : MonoBehaviour
     {
         if (inputFrame==null)
         {
-            inputFrame = new InputFrame(allowedKeysArr,DelayInput);
+            inputFrame = new InputFrame(AllowedKeys,DelayInput);
         }
         if (BufferedInput.Count > DelayInput)
         {

@@ -116,12 +116,14 @@ public class NetworkGamePacket : MonoBehaviour
                 }
             }
 
+            if (reocuringReceiveEvent)
+            {
+                SocketComunication.DefaultReceive(receiveByteBuffer, ReceiveGamePacket_Reoccur);
+            }
+
         }
 
 
-        if (reocuringReceiveEvent)
-        {
-            SocketComunication.DefaultReceive(receiveByteBuffer, ReceiveGamePacket_Reoccur);
-        }
+       
     }
 }

@@ -17,6 +17,7 @@ public class ConfirmFrameWait : MonoBehaviour
         }
         if (b.BufferedInput.Peek().TimeStamp != b2.BufferedInput.Peek().TimeStamp)
         {
+            
             return -1;
         }
         else
@@ -43,17 +44,17 @@ public class ConfirmFrameWait : MonoBehaviour
 
         if (!ClientData.Pause)
         {
-            if (FrameLimiter.Instance.FramesInPlay  > GetConfirmFrame())
+            if (FrameLimiter.Instance.FramesInPlay > GetConfirmFrame())
             {
                 Debug.LogError
                     ($" Simulation should wait Confirm Frame is still: {GetConfirmFrame()}");
                 //Wait till frames in play
-                SpinWait.SpinUntil((() => { return (FrameLimiter.Instance.FramesInPlay  <= GetConfirmFrame()); }), _indefiniteWaitTime);
+                SpinWait.SpinUntil((() => { return (FrameLimiter.Instance.FramesInPlay <= GetConfirmFrame()); }), _indefiniteWaitTime);
             }
         }
 
-           
-       // }
+
+        // }
     }
 
 }

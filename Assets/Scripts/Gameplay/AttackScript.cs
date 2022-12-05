@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class AttackScript : MonoBehaviour
 {
-    private Animator animator;
+    [SerializeField]
+    public Animator animator;
 
 
 

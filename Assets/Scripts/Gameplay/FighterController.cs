@@ -19,12 +19,11 @@ public class FighterController : MonoBehaviour
 
     private bool isGrounded = true;
     private bool isCrouched = false;
-    private Vector3 horizontalMovement;
+    //private Vector3 horizontalMovement;
 
     private Rigidbody2D rigidbody2d;
     public InputBuffer InputBuffer;
-    private int _lastProcessedTs;
-    private HashSet<KeyCode> _keysPressedThisFrame;
+    private int LastFrameProcessed;
 
     [SerializeField]
     Animator animator;
@@ -33,10 +32,9 @@ public class FighterController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _lastProcessedTs = 0;
+        LastFrameProcessed = 0;
       
         rigidbody2d = GetComponent<Rigidbody2D>();
-        _keysPressedThisFrame = new HashSet<KeyCode>();
         Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
         InputBuffer = GetComponent<InputBuffer>();
         //StartCoroutine(RefreshTimestamp());
@@ -52,17 +50,18 @@ public class FighterController : MonoBehaviour
         for (int i = 0; i < frames; i++)
         {
             //UPDATE METHOD
-            horizontalMovement = new Vector3(0, 0, 0);
+            //horizontalMovement = new Vector3(0, 0, 0);
 
-            _keysPressedThisFrame.Clear();
+            
             OrientToEnemy(enemy.transform);
 
             //Simulate the input buffer as the frame it was send in
             // this will always pass
             var inputFrame = inputFrames.Dequeue();
-            ProcessInputBuffer(inputFrame, inputFrame.TimeStamp);
+            ProcessInputBuffer(inputFrame,inputFrame.TimeStamp);
+            //ProcessInputBuffer(inputFrame, inputFrame.TimeStamp);
 
-            animator.SetFloat("XSpeed", horizontalMovement.x);
+            //animator.SetFloat("XSpeed", horizontalMovement.x);
         }
 
 
@@ -72,60 +71,50 @@ public class FighterController : MonoBehaviour
     void Update()
     {
        
-        if (RollbackActivatable)
-        {
-            //if (Input.GetKeyDown(KeyCode.R))
-            //{
+        //if (RollbackActivatable)
+        //{
+        //    //if (Input.GetKeyDown(KeyCode.R))
+        //    //{
 
-            //    RollackActive = !RollackActive;
-            //    Debug.LogError($"Rollback set to {RollackActive}");
-            //    if (RollackActive)
-            //    {
-            //        ClientData.Pause = true;
-            //        Debug.LogError($"Game paused state set to {ClientData.Pause}");
-            //    }
+        //    //    RollackActive = !RollackActive;
+        //    //    Debug.LogError($"Rollback set to {RollackActive}");
+        //    //    if (RollackActive)
+        //    //    {
+        //    //        ClientData.Pause = true;
+        //    //        Debug.LogError($"Game paused state set to {ClientData.Pause}");
+        //    //    }
 
-            //}
-            //if (RollackActive)
-            //{
-            //In this mode the game should be paused and each key press should
-            //try and simulate a frame ahead
-            if (!ClientData.Pause)
-            {
-                if (Input.GetKeyDown(KeyCode.F))
-                {
-                    ClientData.Pause = true;
+        //    //}
+        //    //if (RollackActive)
+        //    //{
+        //    //In this mode the game should be paused and each key press should
+        //    //try and simulate a frame ahead
+        //    if (!ClientData.Pause)
+        //    {
+        //        if (Input.GetKeyDown(KeyCode.F))
+        //        {
+        //            ClientData.Pause = true;
 
-                    Debug.LogError($"Resimulating {InputBuffer.BufferedInput.Count} Frames");
-                    ResimulateInput(InputBuffer.BufferedInput, InputBuffer.BufferedInput.Count);
-                }
-            }
+        //            Debug.LogError($"Resimulating {InputBuffer.BufferedInput.Count} Frames");
+        //            ResimulateInput(InputBuffer.BufferedInput, InputBuffer.BufferedInput.Count);
+        //        }
+        //    }
 
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                ClientData.Pause = false;
+        //    if (Input.GetKeyDown(KeyCode.P))
+        //    {
+        //        ClientData.Pause = false;
 
-            }
-
-
-            // }
-        }
+        //    }
+        //    // }
+        //}
 
         if (ClientData.Pause)
         {
             return;
         }
 
-        horizontalMovement = new Vector3(0, 0, 0);
-
-            _keysPressedThisFrame.Clear();
             OrientToEnemy(enemy.transform);
-
             ProcessInputBuffer(InputBuffer.GetFirstFrame(),GetGameFrame());
-
-            animator.SetFloat("XSpeed", horizontalMovement.x);
-        
-      
     }
 
   
@@ -169,15 +158,9 @@ public class FighterController : MonoBehaviour
        
         if (inputFrame.TimeStamp == frameToSimulate)
         {
-            foreach (var el in inputFrame._inputInFrame)
-            {
-                if (!_keysPressedThisFrame.Contains(el.key))
-                {
-                    _keysPressedThisFrame.Add(el.key);
-                    ProcessAsSingleInput(el);
-                }
-            }
-            _lastProcessedTs = inputFrame.TimeStamp;
+            ProcessInputs(inputFrame._inputInFrame);
+          
+            LastFrameProcessed = inputFrame.TimeStamp;
         }
 
     }
@@ -210,33 +193,44 @@ public class FighterController : MonoBehaviour
         return false;
     }
 
-     bool IsKey(InputElement el, KeyCode key) { return el.key == key; }
-    void ProcessAsSingleInput(InputElement e) 
+     bool IsKey(KeyCode keyCode,InputElement[] inputInFrame) 
     {
-       
+        foreach (var inputElement in inputInFrame)
+        {
+            if (inputElement.key==keyCode)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+   
+
+    void ProcessInputs(InputElement[] inputs)
+    {
+        Vector3 horizontalMovement = new Vector3(0, 0, 0);
+
         if (isGrounded)
         {
-            setCrouch(IsKey(e,KeyCode.S));
-            if (IsKey(e, KeyCode.Space))
+            setCrouch(IsKey(KeyCode.S, inputs));
+            if (IsKey(KeyCode.Space, inputs))
             {
                 Jump();
             }
         }
 
-
-
         if (!isCrouched)
         {
-            if (IsKey(e, KeyCode.D))
+            if (IsKey(KeyCode.D, inputs))
             {
                 horizontalMovement.x = 1;
             }
-            if (IsKey(e, KeyCode.A))
+            if (IsKey(KeyCode.A, inputs))
             {
                 horizontalMovement.x = -1;
             }
         }
-        
+
         //Move in the direction of the player input
         rigidbody2d.transform.position += horizontalMovement /** Time.deltaTime*/ * moveSpeed * 0.01f;
         //However the animation should be fliped if needed
@@ -245,6 +239,7 @@ public class FighterController : MonoBehaviour
             horizontalMovement.x = -horizontalMovement.x;
         }
 
+       animator.SetFloat("XSpeed", horizontalMovement.x);
 
     }
 
