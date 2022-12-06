@@ -34,8 +34,13 @@ public class InputFrame
         }
     }
 
-    public InputFrame(InputElement[] elements, Int32 timestamp)
+   
+    public InputFrame(InputElement[] elements=null, Int32 timestamp=-1)
     {
+        if (elements == null)
+        {
+            elements = new InputElement[ClientData.AllowedKeys.Length];
+        }
         this.TimeStamp = timestamp;
         this._inputInFrame = elements;
     }
@@ -84,7 +89,7 @@ public class InputBuffer :MonoBehaviour
         if (CollectInputFromKeyboard)
         {
             AddNewFrame();
-            DebugPrintKeysDown();
+            //DebugPrintKeysDown();
 
         }
         _framesPassedSinceKeyDown++;
@@ -101,6 +106,8 @@ public class InputBuffer :MonoBehaviour
 
     public void AddNewFrame(InputFrame inputFrame = null)
     {
+        // A S D SPACE 
+        // 1 0 0 0
         if (inputFrame == null)
         {
             inputFrame = new InputFrame(ClientData.AllowedKeys, DelayInput);
@@ -128,9 +135,13 @@ public class InputBuffer :MonoBehaviour
         {
             for (int i = 0; i < frame._inputInFrame.Length; i++)
             {
+
+                
                 var input = frame._inputInFrame[i];
                 KeyCode inputCheck = ClientData.AllowedKeys[i];
 
+                // K == 1
+               
                 if (inputCheck == input.key)
                 {
                     if (!KeyDowned.Contains(inputCheck))
@@ -138,14 +149,20 @@ public class InputBuffer :MonoBehaviour
                         KeyDowned.Add(inputCheck);
                     }
                 }
+                //K == 0
                 else
                 {
                     //On Release
                     if (KeyDowned.Contains(inputCheck))
                     {
+                        // Held Down: A
+                        // Pressed Keys: S D
+                        // Pressed Keys: 
 
+                        //DSpASD
                         if (PressedKeys.Count > PressedKeysMaxCount)
                         {
+                            //Test out what is the error dequing empty q
                             PressedKeys.Dequeue();
 
                         }
@@ -172,7 +189,7 @@ public class InputBuffer :MonoBehaviour
         {
             return this.BufferedInput.Peek();
         }
-        return new InputFrame(new InputElement[0], -1);
+        return new InputFrame();
     }
 
 
@@ -203,129 +220,3 @@ public class InputBuffer :MonoBehaviour
 
 
 }
-//public class InputBuffer : MonoBehaviour
-//{
-
-//    //TODO make buffer only accpets keys that do sth in the game
-//    public KeyCode[] AllowedKeys;
-
-//    // public readonly object bufferLock = new object();
-//    public InputBufferState BufferState;
-    
-
-   
-//    [SerializeField]
-//    public int DelayInput;
-
-//    public Queue<InputFrame> BufferedInput { get; set; }
-
-//    public float DebugOutputTime;
-
-//    public InputBuffer RedirectDequedInputFramesTo;
-//    //private Queue<InputElement> PressedKeys;
-//    //Refreshed buffer after seconds if new key has not been received the meantime
-//    //public uint MaxKeyDownInputs;
-
-//    public float RefreshBufferAfter;
-//    // Start is called before the first frame update
-//    public InputFrame LastFrame { get; set; }
-
-//    void Start()
-//    {
-//        AllowedKeys = new KeyCode[] { KeyCode.Space, KeyCode.S, KeyCode.A, KeyCode.D };
-
-//        StartCoroutine(DebugPrintAfter());
-//        StartCoroutine(DeleteBufferAter());
-//        BufferedInput = new Queue<InputFrame>();
-//        // PressedKeys = new Queue<InputElement>();
-//    }
-
-//    // Update is called once per frame
-//    void Update()
-//    {
-//        if (ClientData.Pause)
-//        {
-//            return;
-//        }
-//        if (BufferState == InputBufferState.InputCollector)
-//        {
-//            AddNewFrame();
-       
-//        }
-//        //Enemy buffer is updated on another thread when Socket Receive Completes
-//    }
-
-  
-
-//    public void AddNewFrame(InputFrame inputFrame=null) 
-//    {
-//        if (inputFrame==null)
-//        {
-//            inputFrame = new InputFrame(AllowedKeys,DelayInput);
-//        }
-//        if (BufferedInput.Count > DelayInput)
-//        {
-//            var deqInputFrame=BufferedInput.Dequeue();
-//            if (RedirectDequedInputFramesTo != null)
-//            {
-//                RedirectDequedInputFramesTo.AddNewFrame(deqInputFrame);
-//            }
-//        }
-//        BufferedInput.Enqueue(inputFrame);
-//        LastFrame = inputFrame;
-
-//    }
-//    public InputFrame GetFirstFrame() 
-//    {
-//        if (this.BufferedInput !=null && this.BufferedInput.Count>0)
-//        {
-//            return this.BufferedInput.Peek();
-//        }
-//        return new InputFrame(new InputElement[0],-1);
-//    }
-    
-
-//    IEnumerator DebugPrintAfter()
-//    {
-//        while (true)
-//        {
-//            yield return new WaitForSeconds(DebugOutputTime);
-//           // DebugPrint();
-//        }
-     
-//    }
-
-//    IEnumerator DeleteBufferAter()
-//    {
-//        yield return new WaitForSeconds(RefreshBufferAfter);
-//        //while (true)
-//        //{
-//        //    yield return new WaitForSeconds(RefreshBufferAfter);
-//        //    this.PressedKeys = new Queue<InputElement>();
-//        //}
-
-//    }
-
-//    public void DebugPrint() 
-//    {
-//        //string strKeyDownBuff = "Key Down Buffer";
-//        //foreach (var el in this.PressedKeys)
-//        //{
-//        //    strKeyDownBuff += el.key.ToString();
-//        //}
-
-//        string strAllInputBuff="All Input Buffer";
-//        foreach (var inputFrame in this.BufferedInput)
-//        {
-//            foreach (var el in inputFrame._inputInFrame)
-//            {
-//                strAllInputBuff += el.key.ToString();
-//            }
-//        }
-//        // Debug.LogError(_inputElements.Count);
-//        //  Debug.LogError(strKeyDownBuff);
-//        Debug.LogError(strAllInputBuff);
-//    }
-
-  
-//}

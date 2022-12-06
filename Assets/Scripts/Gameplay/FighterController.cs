@@ -36,13 +36,11 @@ public class FighterController : MonoBehaviour
       
         rigidbody2d = GetComponent<Rigidbody2D>();
         Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
-        InputBuffer = GetComponent<InputBuffer>();
         //StartCoroutine(RefreshTimestamp());
     }
 
 
-    public bool RollbackActivatable=false;
-    public bool RollackActive=false;
+   
 
 
     public void ResimulateInput(InputBuffer inputBuffer,int frames) 
@@ -69,43 +67,7 @@ public class FighterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
-        //if (RollbackActivatable)
-        //{
-        //    //if (Input.GetKeyDown(KeyCode.R))
-        //    //{
-
-        //    //    RollackActive = !RollackActive;
-        //    //    Debug.LogError($"Rollback set to {RollackActive}");
-        //    //    if (RollackActive)
-        //    //    {
-        //    //        ClientData.Pause = true;
-        //    //        Debug.LogError($"Game paused state set to {ClientData.Pause}");
-        //    //    }
-
-        //    //}
-        //    //if (RollackActive)
-        //    //{
-        //    //In this mode the game should be paused and each key press should
-        //    //try and simulate a frame ahead
-        //    if (!ClientData.Pause)
-        //    {
-        //        if (Input.GetKeyDown(KeyCode.F))
-        //        {
-        //            ClientData.Pause = true;
-
-        //            Debug.LogError($"Resimulating {InputBuffer.BufferedInput.Count} Frames");
-        //            ResimulateInput(InputBuffer.BufferedInput, InputBuffer.BufferedInput.Count);
-        //        }
-        //    }
-
-        //    if (Input.GetKeyDown(KeyCode.P))
-        //    {
-        //        ClientData.Pause = false;
-
-        //    }
-        //    // }
-        //}
+      
 
         if (ClientData.Pause)
         {
@@ -144,11 +106,12 @@ public class FighterController : MonoBehaviour
         }
 
         //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
-        if (inputBuffer.PressedKeys!=null)
+        if (inputBuffer.PressedKeys!=null && inputBuffer.PressedKeys.Count!=0)
         {
+
             if (CheckFireball(inputBuffer.PressedKeys.ToArray()))
             {
-                Debug.LogWarning("Fireball Input Detected");
+                Debug.LogError("Fireball Input Detected");
             }
         }
 
@@ -176,13 +139,20 @@ public class FighterController : MonoBehaviour
         KeyCode[] consecKey = new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D };
         bool fireballDone = true;
 
+        if (inputElements.Length < 3)
+        {
+            return false;
+        }
 
-        for (int index = 0; index < inputElements.Length-3; index++)
+        //EX Press keys Buffer D D A D A
+        // [0-2]
+
+        for (int index = 0; index <= inputElements.Length - 3; index++)
         {
             fireballDone = true;
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i <= 2; i++)
             {
-                if (inputElements[index + i] != consecKey[index + i])
+                if (inputElements[index + i] != consecKey[i])
                 {
                     fireballDone = false;
                     break;
