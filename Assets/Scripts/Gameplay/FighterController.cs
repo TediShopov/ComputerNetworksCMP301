@@ -45,7 +45,7 @@ public class FighterController : MonoBehaviour
     public bool RollackActive=false;
 
 
-    public void ResimulateInput(Queue<InputFrame> inputFrames,int frames) 
+    public void ResimulateInput(InputBuffer inputBuffer,int frames) 
     {
         for (int i = 0; i < frames; i++)
         {
@@ -57,8 +57,7 @@ public class FighterController : MonoBehaviour
 
             //Simulate the input buffer as the frame it was send in
             // this will always pass
-            var inputFrame = inputFrames.Dequeue();
-            ProcessInputBuffer(inputFrame,inputFrame.TimeStamp);
+            ProcessInputBuffer(inputBuffer, inputBuffer.BufferedInput.Peek().TimeStamp);
             //ProcessInputBuffer(inputFrame, inputFrame.TimeStamp);
 
             //animator.SetFloat("XSpeed", horizontalMovement.x);
@@ -114,7 +113,7 @@ public class FighterController : MonoBehaviour
         }
 
             OrientToEnemy(enemy.transform);
-            ProcessInputBuffer(InputBuffer.GetFirstFrame(),GetGameFrame());
+            ProcessInputBuffer(InputBuffer,GetGameFrame());
     }
 
   
@@ -137,35 +136,41 @@ public class FighterController : MonoBehaviour
     {
         return FrameLimiter.Instance.FramesInPlay + OffsetGameFrame;
     }
-    void ProcessInputBuffer(InputFrame inputFrame,int frameToSimulate=0) 
+    void ProcessInputBuffer(InputBuffer inputBuffer,int frameToSimulate=0) 
     {
-      
-        //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
-
-        //if (CheckFireball(keyDownBuff.ToArray()))
-        //{
-        //    Debug.LogWarning("Fireball Input Detected");
-        //}
-
-        //If combos/special attack is not found 
-        //Todo this will not aacount for multiple pressed keys at once
-        if (inputFrame==null)
+        if (inputBuffer == null)
         {
             return;
         }
 
-      
-       
-        if (inputFrame.TimeStamp == frameToSimulate)
+        //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
+        if (inputBuffer.PressedKeys!=null)
         {
-            ProcessInputs(inputFrame._inputInFrame);
-          
-            LastFrameProcessed = inputFrame.TimeStamp;
+            if (CheckFireball(inputBuffer.PressedKeys.ToArray()))
+            {
+                Debug.LogWarning("Fireball Input Detected");
+            }
         }
+
+
+        //If combos/special attack is not found 
+        //Todo this will not aacount for multiple pressed keys at once
+
+        if (inputBuffer.BufferedInput!=null && inputBuffer.BufferedInput.Count!=0)
+        {
+            var firstFrame = inputBuffer.BufferedInput.Peek();
+            if (firstFrame.TimeStamp == frameToSimulate)
+            {
+                ProcessInputs(firstFrame._inputInFrame);
+
+                LastFrameProcessed = firstFrame.TimeStamp;
+            }
+        }
+       
 
     }
 
-    bool CheckFireball(InputElement[] inputElements) 
+    bool CheckFireball(KeyCode[] inputElements) 
     {
         
         KeyCode[] consecKey = new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D };
@@ -177,7 +182,7 @@ public class FighterController : MonoBehaviour
             fireballDone = true;
             for (int i = 0; i < 2; i++)
             {
-                if (inputElements[index + i].key != consecKey[index + i])
+                if (inputElements[index + i] != consecKey[index + i])
                 {
                     fireballDone = false;
                     break;

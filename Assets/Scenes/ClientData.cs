@@ -24,6 +24,13 @@ public class ClientData : MonoBehaviour
         return SocketComunication.Receiver.Connected &&
        SocketComunication.Sender.Connected;
     }
-   
+
+    static public readonly KeyCode[] AllowedKeys = { KeyCode.Space, KeyCode.S, KeyCode.A, KeyCode.D };
+    static public readonly Dictionary<KeyCode,int> AllowedKeysIndex = new Dictionary<KeyCode, int>
+        { {KeyCode.Space, 0 },
+        {KeyCode.S, 1 }, 
+        {KeyCode.A, 2 },
+        {KeyCode.D, 3 } };
+
 
 }
