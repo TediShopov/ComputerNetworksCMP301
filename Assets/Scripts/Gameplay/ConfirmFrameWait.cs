@@ -7,26 +7,17 @@ using UnityEngine;
 public class ConfirmFrameWait : MonoBehaviour
 {
 
-    private static bool _waitCondition=false;
-    private static bool WaitForConfirmFrame
-    {
-        get
-        {
-            return _waitCondition;
-        }
-        set 
-        {
-            _waitCondition = value;
-        }
-    }
-
+    private static bool WaitForConfirmFrame=false;
 
 
     static void OnBufferUpdate(InputFrame frame) 
     {
+        //Buffer Updating
         WaitForConfirmFrame= FrameLimiter.Instance.FramesInPlay >
                GetConfirmFrame(StaticBuffers.Instance.PlayerBuffer,
                                StaticBuffers.Instance.EnemyBuffer);
+        Debug.LogError($"Wait Condition Updated {WaitForConfirmFrame} Confirm Frame " +
+            $"{GetConfirmFrame(StaticBuffers.Instance.PlayerBuffer,StaticBuffers.Instance.EnemyBuffer)}");
        
     }
 
@@ -73,11 +64,11 @@ public class ConfirmFrameWait : MonoBehaviour
         //not enough input to proceed simulation
         if (!ClientData.Pause)
         {
-            if (WaitForConfirmFrame)
+            if (WaitForConfirmFrame && !ClientData.SoloPlay)
             {
             
                 //Wait till frames in play
-                SpinWait.SpinUntil((() => { return (!WaitForConfirmFrame); }), _indefiniteWaitTime);
+                SpinWait.SpinUntil((() => { return (!WaitForConfirmFrame || ClientData.SoloPlay); }), _indefiniteWaitTime);
 
             }
         }

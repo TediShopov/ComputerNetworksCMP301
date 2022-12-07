@@ -19,6 +19,7 @@ public class ClientData : MonoBehaviour
         }
     }
 
+    static public bool SoloPlay = false;
 
     static public bool TwoWayConnectionEstablished() {
         return SocketComunication.Receiver.Connected &&

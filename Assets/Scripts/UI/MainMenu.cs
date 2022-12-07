@@ -68,6 +68,12 @@ public class MainMenu: MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    public void StartSoloGame() 
+    {
+        ClientData.SoloPlay=true;
+        SceneManager.LoadScene(1);
+    }
+
     
    
 

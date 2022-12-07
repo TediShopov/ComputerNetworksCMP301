@@ -31,6 +31,11 @@ public class SyncClocks : MonoBehaviour
         //Init
         _calculatedOneWayLatency = new List<double>();
 
+        if (ClientData.SoloPlay)
+        {
+            return;
+        }
+
         SyncClock syncClockMockPacket = DefaultSyncClockBuffer();
         byteCount = System.Runtime.InteropServices.Marshal.SizeOf(syncClockMockPacket);
         bufferBytes = SocketComunication.RawSerialize(syncClockMockPacket);

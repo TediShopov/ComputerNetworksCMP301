@@ -43,15 +43,22 @@ public class FighterController : MonoBehaviour
         //StartCoroutine(RefreshTimestamp());
     }
 
-    //public FighterController(FighterController previousPerson)
+
+  
+    //public void SetStateTo(FighterController otherFighter)
     //{
-    //    Name = previousPerson.Name;
-    //    Age = previousPerson.Age;
+    //    //Set all State Values
+    //     isGrounded = otherFighter.isGrounded;
+    //     isCrouched = otherFighter.isCrouched;
+    //     waitAfterJump = otherFighter.waitAfterJump;
+
+
+        
     //}
 
 
 
-    public void ResimulateInput(InputBuffer inputBuffer,int frames) 
+public void ResimulateInput(InputBuffer inputBuffer,int frames) 
     {
         for (int i = 0; i < frames; i++)
         {
