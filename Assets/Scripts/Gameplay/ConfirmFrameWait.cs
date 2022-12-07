@@ -6,18 +6,45 @@ using UnityEngine;
 
 public class ConfirmFrameWait : MonoBehaviour
 {
-  
+
+    private static bool _waitCondition=false;
+    private static bool WaitForConfirmFrame
+    {
+        get
+        {
+            return _waitCondition;
+        }
+        set 
+        {
+            _waitCondition = value;
+        }
+    }
+
+
+
+    static void OnBufferUpdate(InputFrame frame) 
+    {
+        WaitForConfirmFrame= FrameLimiter.Instance.FramesInPlay >
+               GetConfirmFrame(StaticBuffers.Instance.PlayerBuffer,
+                               StaticBuffers.Instance.EnemyBuffer);
+       
+    }
 
     static int GetConfirmFrame(InputBuffer b, InputBuffer b2)
     {
-        //Have to be algigned perfectly 
-        if (b2.BufferedInput==null || b2.BufferedInput.Count==0)
+        if (b==null || b2==null)
         {
             return -1;
         }
+        if (b2.BufferedInput == null || b2.BufferedInput.Count == 0
+            || b.BufferedInput == null || b.BufferedInput.Count == 0)
+        {
+            return -1;
+        }
+
+        //Have to be algigned perfectly 
         if (b.BufferedInput.Peek().TimeStamp != b2.BufferedInput.Peek().TimeStamp)
         {
-            
             return -1;
         }
         else
@@ -28,12 +55,16 @@ public class ConfirmFrameWait : MonoBehaviour
 
     }
 
-    static int GetConfirmFrame()
-    {
+   
 
-        return GetConfirmFrame(StaticBuffers.Instance.PlayerBuffer, StaticBuffers.Instance.EnemyBuffer);
-    }
     private TimeSpan _indefiniteWaitTime=new TimeSpan(0,0,0,0,-1);
+
+    private void Start()
+    {
+        StaticBuffers.Instance.EnemyBuffer.OnInputFrameAdded+=OnBufferUpdate;
+        StaticBuffers.Instance.PlayerBuffer.OnInputFrameAdded += OnBufferUpdate;
+
+    }
     void Update()
     {
 
@@ -42,12 +73,12 @@ public class ConfirmFrameWait : MonoBehaviour
         //not enough input to proceed simulation
         if (!ClientData.Pause)
         {
-            if (FrameLimiter.Instance.FramesInPlay > GetConfirmFrame())
+            if (WaitForConfirmFrame)
             {
-                //Debug.LogError
-                //    ($" Simulation should wait Confirm Frame is still: {GetConfirmFrame()}");
+            
                 //Wait till frames in play
-                SpinWait.SpinUntil((() => { return (FrameLimiter.Instance.FramesInPlay <= GetConfirmFrame()); }), _indefiniteWaitTime);
+                SpinWait.SpinUntil((() => { return (!WaitForConfirmFrame); }), _indefiniteWaitTime);
+
             }
         }
     }

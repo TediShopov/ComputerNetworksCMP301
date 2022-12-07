@@ -20,7 +20,7 @@ public class FighterController : MonoBehaviour
     private bool isGrounded = true;
     private bool isCrouched = false;
     //private Vector3 horizontalMovement;
-
+     
     private Rigidbody2D rigidbody2d;
     public InputBuffer InputBuffer;
     private int LastFrameProcessed;
@@ -43,8 +43,12 @@ public class FighterController : MonoBehaviour
         //StartCoroutine(RefreshTimestamp());
     }
 
+    //public FighterController(FighterController previousPerson)
+    //{
+    //    Name = previousPerson.Name;
+    //    Age = previousPerson.Age;
+    //}
 
-   
 
 
     public void ResimulateInput(InputBuffer inputBuffer,int frames) 

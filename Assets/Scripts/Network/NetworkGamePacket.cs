@@ -17,7 +17,15 @@ public struct GamePacket
 public class NetworkGamePacket : MonoBehaviour
 {
     //TODO maybe store multiple
-    static public GamePacket LastReceivedGamePacket;
+    static private GamePacket _lastReceivedGamePacket;
+    static public GamePacket LastReceivedGamePacket { 
+        get { 
+                lock (receiveLock)
+            {
+                return _lastReceivedGamePacket;
+            }
+                 }
+        private set { _lastReceivedGamePacket = value; } }
 
     public bool reocuringReceiveEvent { get; set; }
     public bool sendFinished { get; set; }
@@ -27,7 +35,7 @@ public class NetworkGamePacket : MonoBehaviour
     public byte[] receiveByteBuffer { get; set; }
 
 
-    private readonly object receiveLock = new object();
+    private static readonly object receiveLock = new object();
 
     public byte[] sendByteBuffer { get; set; }
     // Start is called before the first frame update
@@ -116,14 +124,14 @@ public class NetworkGamePacket : MonoBehaviour
                 }
             }
 
-            if (reocuringReceiveEvent)
-            {
-                SocketComunication.DefaultReceive(receiveByteBuffer, ReceiveGamePacket_Reoccur);
-            }
+           
+        }
 
+        if (reocuringReceiveEvent)
+        {
+            SocketComunication.DefaultReceive(receiveByteBuffer, ReceiveGamePacket_Reoccur);
         }
 
 
-       
     }
 }
