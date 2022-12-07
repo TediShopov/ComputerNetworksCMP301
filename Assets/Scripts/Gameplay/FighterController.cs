@@ -30,6 +30,10 @@ public class FighterController : MonoBehaviour
     [SerializeField]
     SpriteRenderer spriteRenderer;
     // Start is called before the first frame update
+
+    public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
+    public event InputFrameDelegate OnInputProcessed; // event
+
     void Start()
     {
         LastFrameProcessed = 0;
@@ -75,7 +79,8 @@ public class FighterController : MonoBehaviour
         }
 
             OrientToEnemy(enemy.transform);
-            ProcessInputBuffer(InputBuffer,GetGameFrame());
+     
+       ProcessInputBuffer(InputBuffer, GetGameFrame());
     }
 
   
@@ -105,6 +110,8 @@ public class FighterController : MonoBehaviour
             return;
         }
 
+ 
+
         //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
         if (inputBuffer.PressedKeys!=null && inputBuffer.PressedKeys.Count!=0)
         {
@@ -124,6 +131,7 @@ public class FighterController : MonoBehaviour
             var firstFrame = inputBuffer.BufferedInput.Peek();
             if (firstFrame.TimeStamp == frameToSimulate)
             {
+                OnInputProcessed?.Invoke(firstFrame);
                 ProcessInputs(firstFrame._inputInFrame);
 
                 LastFrameProcessed = firstFrame.TimeStamp;

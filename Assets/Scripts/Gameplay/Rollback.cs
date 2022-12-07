@@ -17,13 +17,13 @@ public class Rollback : MonoBehaviour
 
     void ResimulateFramesForFighter(FighterController fighter,int frames) 
     {
-        Debug.LogError($"Resimulating {frames} Frames");
+        Debug.LogError($"Resimulating from{FrameLimiter.Instance.FramesInPlay} " +
+            $" {fighter.InputBuffer.BufferedInput.Peek().TimeStamp} Frames");
         fighter.ResimulateInput(
             fighter.InputBuffer,
             frames);
 
 
-        Debug.LogError($"Cleared Buffer");
         for (int i = 0; i < frames; i++)
         {
             fighter.InputBuffer.BufferedInput.Dequeue();
@@ -39,13 +39,15 @@ public class Rollback : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.F))
                 {
-                ResimulateFramesForFighter(playerRB,7);
-                ResimulateFramesForFighter(enemyRB,7);
+                int count = playerRB.InputBuffer.BufferedInput.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    ResimulateFramesForFighter(playerRB,1);
+                    ResimulateFramesForFighter(enemyRB,1);
+                }
+               
 
                 ClientData.Pause = true;
-
-
-
             }
         }
 
@@ -57,4 +59,6 @@ public class Rollback : MonoBehaviour
             // }
         
     }
+
+     
 }

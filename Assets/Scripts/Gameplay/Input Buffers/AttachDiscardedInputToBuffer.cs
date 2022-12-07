@@ -6,12 +6,13 @@ public class AttachDiscardedInputToBuffer : MonoBehaviour
 {
 
     [SerializeField]
-    public InputBuffer CaptureBuffer;
+    public FighterController Fighter;
     [SerializeField]
-    public InputBuffer TargetBuffer;
+    public InputBuffer RollbackBuffer;
     // Start is called before the first frame update
     void Start()
     {
-        CaptureBuffer.OnInputFrameDiscarded += (InputFrame f) => { TargetBuffer.AddNewFrame(f); };
+        Fighter.OnInputProcessed += 
+            (InputFrame f) => { RollbackBuffer.AddNewFrame(f); };
     }
 }

@@ -60,7 +60,7 @@ public class InputBuffer :MonoBehaviour
     [SerializeField]
     public int DelayInput;
 
-    public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
+    public  delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
     public event InputFrameDelegate OnInputFrameAdded; // event
     public event InputFrameDelegate OnInputFrameDiscarded; // event
 
@@ -104,6 +104,13 @@ public class InputBuffer :MonoBehaviour
 
     // Update is called once per frame
 
+    // Curr Frame   0,    1,      2,        3,          4           5
+    //              [3]  [3,4]    [3,4,5]   [3,4,5,6]   [4,5,6,7]   [5,6,7,8]
+
+    //RB buffer 
+    //Curr  Frame   7    8              11 - 8
+    //  [3,4,5,6,7]     [3,4,5,6,7,8]   [4,5,6,7,8,9,10,11]
+
     public void AddNewFrame(InputFrame inputFrame = null)
     {
         // A S D SPACE 
@@ -118,6 +125,7 @@ public class InputBuffer :MonoBehaviour
             OnInputFrameDiscarded?.Invoke(deqInputFrame);
         }
         BufferedInput.Enqueue(inputFrame);
+       
         LastFrame = inputFrame;
 
         //Call on add event
