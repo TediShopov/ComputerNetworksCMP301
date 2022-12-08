@@ -36,17 +36,27 @@ public class FighterController : MonoBehaviour
     public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
     public event InputFrameDelegate OnInputProcessed; // event
 
-    void Start()
+
+    private void Awake()
     {
         LastFrameProcessed = 0;
-      
+
         rigidbody2d = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
-        //StartCoroutine(RefreshTimestamp());
     }
+    //void Start()
+    //{
+    //    LastFrameProcessed = 0;
+      
+    //    rigidbody2d = GetComponent<Rigidbody2D>();
+    //    animator = GetComponent<Animator>();
+    //    spriteRenderer = GetComponent<SpriteRenderer>();
+
+    //    Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
+    //    //StartCoroutine(RefreshTimestamp());
+    //}
 
 
   
@@ -70,8 +80,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             //UPDATE METHOD
             //horizontalMovement = new Vector3(0, 0, 0);
 
-            
-            OrientToEnemy(StaticBuffers.Instance.Enemy.transform);
+
+            OrientToEnemy(GetEnemy()?.transform);
 
             //Simulate the input buffer as the frame it was send in
             // this will always pass
@@ -174,7 +184,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         if (inputBuffer.BufferedInput!=null && inputBuffer.BufferedInput.Count!=0)
         {
             var firstFrame = inputBuffer.BufferedInput.Peek();
-            if (this.OffsetGameFrame<-3)
+            if (this.OffsetGameFrame>-3 && this.isEnemy)
             {
                 Debug.LogError($"Diff {firstFrame.TimeStamp - frameToSimulate}");
             }

@@ -10,38 +10,79 @@ public class Restore : MonoBehaviour
 
   
 
-    void ReplaceObject(GameObject to)
+    void ReplaceObject(ref GameObject toReplace, GameObject from)
     {
-        Transform[] Replaces;
-        Replaces = to.GetComponentsInChildren<Transform>();
 
-        foreach (Transform t in Replaces)
-        {
-            GameObject newObject;
-            newObject = Instantiate(FighterPrefab);
-            Debug.LogError("Instantiated  NEW Player Fighter");
+        Transform   RBTransform = from.GetComponent<Transform>();
+       
+        GameObject newObject;
+        newObject = Instantiate(FighterPrefab);
+        Debug.LogError("Instantiated  NEW Player Fighter");
+        
+        //Rollback the positiion of the actual player to RB dummy
+        newObject.transform.position = RBTransform.position;
+        newObject.transform.rotation = RBTransform.rotation;
+        newObject.transform.parent = RBTransform.parent;
+        newObject.GetComponent<FighterController>().isEnemy = from.GetComponent<FighterController>().isEnemy;
 
-            newObject.transform.position = t.position;
-            newObject.transform.rotation = t.rotation;
-            newObject.transform.parent = t.parent;
-            newObject.GetComponent<FighterController>().isEnemy = to.GetComponent<FighterController>().isEnemy;
+        //Extract RB object Input Buffer and reenact it on the player object
+        
+
+        Destroy(toReplace);
+        Debug.LogError("Destroyed Original Player Fighter Object");
+        toReplace = newObject;
 
 
-            Destroy(t.gameObject);
-            Debug.LogError("Destroyed Original Player Fighter Object");
-
-        }
+        
     }
 
-        // Update is called once per frame
-        void Update()
+    void ResimulateFrames(GameObject fighterObj, GameObject RBObject) 
+    {
+        ResimulateFramesForFighter(
+                  fighterObj.GetComponent<FighterController>(),
+                 RBObject.GetComponent<InputBuffer>(), 7);
+    }
+
+    void ResimulateFramesForFighter(FighterController fighter, InputBuffer inputBuffer, int frames)
+    {
+        Debug.LogError($"Resimulating from{FrameLimiter.Instance.FramesInPlay} " +
+            $" {inputBuffer.BufferedInput.Peek().TimeStamp} Frames");
+        fighter.ResimulateInput(
+            inputBuffer,
+            frames);
+
+
+        for (int i = 0; i < frames; i++)
+        {
+            inputBuffer.BufferedInput.Dequeue();
+        }
+
+    }
+
+    
+
+    // Update is called once per frame
+    void Update()
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
             if (StaticBuffers.Instance.Player != null)
             {
-                ReplaceObject(StaticBuffers.Instance.Player);
+                ClientData.Pause = true;
+                ReplaceObject( ref StaticBuffers.Instance.Player, StaticBuffers.Instance.PlayerRB);
+
+                StaticBuffers.Instance.RenewBuffers();
+                ResimulateFrames(
+                    StaticBuffers.Instance.Player,
+                    StaticBuffers.Instance.PlayerRB);
+
+
             }
+        }
+        if (Input.GetKeyDown(KeyCode.P) && ClientData.Pause)
+        {
+            ClientData.Pause = false;
+
         }
     }
 }

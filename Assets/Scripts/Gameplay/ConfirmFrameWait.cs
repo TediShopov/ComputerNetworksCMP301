@@ -8,7 +8,7 @@ public class ConfirmFrameWait : MonoBehaviour
 {
 
     private static bool WaitForConfirmFrame=false;
-
+    public static bool IsEnabled=true;
 
     static void OnBufferUpdate(InputFrame frame) 
     {
@@ -49,11 +49,12 @@ public class ConfirmFrameWait : MonoBehaviour
 
     private TimeSpan _indefiniteWaitTime=new TimeSpan(0,0,0,0,-1);
 
-     void Start()
+     void Awake()
     {
         StaticBuffers.Instance.EnemyBuffer.OnInputFrameAdded+=OnBufferUpdate;
         StaticBuffers.Instance.PlayerBuffer.OnInputFrameAdded += OnBufferUpdate;
-
+        //IsEnabled = !ClientData.SoloPlay;
+        IsEnabled = false;
     }
     void Update()
     {
@@ -63,11 +64,11 @@ public class ConfirmFrameWait : MonoBehaviour
         //not enough input to proceed simulation
         if (!ClientData.Pause)
         {
-            if (WaitForConfirmFrame && !ClientData.SoloPlay)
+            if (WaitForConfirmFrame && IsEnabled)
             {
             
                 //Wait till frames in play
-                SpinWait.SpinUntil((() => { return (!WaitForConfirmFrame || ClientData.SoloPlay); }), _indefiniteWaitTime);
+                SpinWait.SpinUntil((() => { return (!WaitForConfirmFrame || !IsEnabled); }), _indefiniteWaitTime);
 
             }
         }

@@ -18,32 +18,28 @@ public class StaticBuffers : MonoBehaviour
     private InputBuffer _serializedPlayerBuffer=null;
      public InputBuffer PlayerBuffer { get 
         {
-            if (_serializedPlayerBuffer==null)
-            {
-                Debug.LogError($"Init {_serializedPlayerBuffer}");
-                _serializedPlayerBuffer = Player.GetComponent<FighterController>().InputBuffer;
-            }
             return _serializedPlayerBuffer; 
         } }
     private InputBuffer _serializedEnemyBuffer=null;
 
+    //Do not use unity API here
     public InputBuffer EnemyBuffer { get 
         {
-            if (_serializedEnemyBuffer == null)
-            {
-                Debug.LogError($"Init {_serializedEnemyBuffer}");
-                _serializedEnemyBuffer = Enemy.GetComponent<FighterController>().InputBuffer;
-
-            }
             return _serializedEnemyBuffer;
-
         }
+    }
+
+    public void RenewBuffers() 
+    {
+        _serializedPlayerBuffer = Player.GetComponent<FighterController>().InputBuffer;
+        _serializedEnemyBuffer = Enemy.GetComponent<FighterController>().InputBuffer;
     }
 
     public static StaticBuffers Instance;
     void Start()
     {
         Instance = this;
+        RenewBuffers();
     }
 
 }
