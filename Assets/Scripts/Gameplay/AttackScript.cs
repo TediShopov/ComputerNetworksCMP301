@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class AttackScript : MonoBehaviour
 {
-    [SerializeField]
-    public Animator animator;
+    private Animator animator;
 
 
 
@@ -19,6 +18,7 @@ public class AttackScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        animator = this.GetComponent<Animator>();
     }
 
     // Update is called once per frame

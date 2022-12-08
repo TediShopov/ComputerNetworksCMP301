@@ -97,7 +97,7 @@ public class NetworkGamePacket : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Couldnt send input on this frame");
+            //Debug.LogError("Couldnt send input on this frame");
         }
 
     }

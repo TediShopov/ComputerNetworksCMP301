@@ -16,8 +16,7 @@ public class ConfirmFrameWait : MonoBehaviour
         WaitForConfirmFrame= FrameLimiter.Instance.FramesInPlay >
                GetConfirmFrame(StaticBuffers.Instance.PlayerBuffer,
                                StaticBuffers.Instance.EnemyBuffer);
-        Debug.LogError($"Wait Condition Updated {WaitForConfirmFrame} Confirm Frame " +
-            $"{GetConfirmFrame(StaticBuffers.Instance.PlayerBuffer,StaticBuffers.Instance.EnemyBuffer)}");
+       
        
     }
 
@@ -50,7 +49,7 @@ public class ConfirmFrameWait : MonoBehaviour
 
     private TimeSpan _indefiniteWaitTime=new TimeSpan(0,0,0,0,-1);
 
-    private void Start()
+     void Start()
     {
         StaticBuffers.Instance.EnemyBuffer.OnInputFrameAdded+=OnBufferUpdate;
         StaticBuffers.Instance.PlayerBuffer.OnInputFrameAdded += OnBufferUpdate;

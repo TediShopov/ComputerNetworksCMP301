@@ -14,7 +14,7 @@ public class FighterController : MonoBehaviour
 
     public float waitAfterJump;
     public BoxCollider2D groundCollider;
-    public GameObject enemy;
+    //public GameObject enemy;
 
 
     private bool isGrounded = true;
@@ -22,13 +22,15 @@ public class FighterController : MonoBehaviour
     //private Vector3 horizontalMovement;
      
     private Rigidbody2D rigidbody2d;
+
+    [SerializeField]
     public InputBuffer InputBuffer;
     private int LastFrameProcessed;
 
-    [SerializeField]
-    Animator animator;
-    [SerializeField]
-    SpriteRenderer spriteRenderer;
+    //[SerializeField]
+    private Animator animator;
+    //[SerializeField]
+    private SpriteRenderer spriteRenderer;
     // Start is called before the first frame update
 
     public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
@@ -39,6 +41,9 @@ public class FighterController : MonoBehaviour
         LastFrameProcessed = 0;
       
         rigidbody2d = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
         Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
         //StartCoroutine(RefreshTimestamp());
     }
@@ -66,7 +71,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             //horizontalMovement = new Vector3(0, 0, 0);
 
             
-            OrientToEnemy(enemy.transform);
+            OrientToEnemy(StaticBuffers.Instance.Enemy.transform);
 
             //Simulate the input buffer as the frame it was send in
             // this will always pass
@@ -79,6 +84,35 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
        
     }
+
+    public bool isEnemy;
+    private GameObject GetEnemy() 
+    {
+        //If in rollback testing layer
+        if (this.gameObject.layer!=9)
+        {
+            if (!isEnemy)
+            {
+                return StaticBuffers.Instance.EnemyRB;
+            }
+            else
+            {
+                return StaticBuffers.Instance.PlayerRB;
+            }
+        }
+        else
+        {
+            if (!isEnemy)
+            {
+                return StaticBuffers.Instance.Enemy;
+            }
+            else
+            {
+                return StaticBuffers.Instance.Player;
+            }
+        }
+      
+    }
     // Update is called once per frame
     void Update()
     {
@@ -89,8 +123,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             return;
         }
 
-            OrientToEnemy(enemy.transform);
-     
+   
+       OrientToEnemy(GetEnemy()?.transform);
        ProcessInputBuffer(InputBuffer, GetGameFrame());
     }
 
@@ -140,13 +174,17 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         if (inputBuffer.BufferedInput!=null && inputBuffer.BufferedInput.Count!=0)
         {
             var firstFrame = inputBuffer.BufferedInput.Peek();
-            if (firstFrame.TimeStamp == frameToSimulate)
+            if (this.OffsetGameFrame<-3)
             {
+                Debug.LogError($"Diff {firstFrame.TimeStamp - frameToSimulate}");
+            }
+            //if (firstFrame.TimeStamp == frameToSimulate)
+            //{
                 OnInputProcessed?.Invoke(firstFrame);
                 ProcessInputs(firstFrame._inputInFrame);
 
                 LastFrameProcessed = firstFrame.TimeStamp;
-            }
+           // }
         }
        
 

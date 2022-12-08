@@ -5,14 +5,27 @@ using UnityEngine;
 public class AttachDiscardedInputToBuffer : MonoBehaviour
 {
 
-    [SerializeField]
-    public FighterController Fighter;
-    [SerializeField]
-    public InputBuffer RollbackBuffer;
+    private FighterController Fighter;
+   
     // Start is called before the first frame update
     void Start()
     {
-        Fighter.OnInputProcessed += 
-            (InputFrame f) => { RollbackBuffer.AddNewFrame(f); };
+        Fighter = this.GetComponent<FighterController>();
+        if (!Fighter.isEnemy)
+        {
+            Fighter.OnInputProcessed +=
+           (InputFrame f) => { StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>()
+               .InputBuffer.AddNewFrame(f); };
+        }
+        else
+        {
+            Fighter.OnInputProcessed +=
+          (InputFrame f) => {
+              Debug.LogError("Enemy RB Received");
+              StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>()
+            .InputBuffer.AddNewFrame(f);
+          };
+        }
+       
     }
 }

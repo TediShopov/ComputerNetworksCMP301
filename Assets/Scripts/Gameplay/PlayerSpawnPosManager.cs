@@ -4,11 +4,7 @@ using UnityEngine;
 
 public class PlayerSpawnPosManager : MonoBehaviour
 {
-    public GameObject playerFighter;
-    public GameObject playerRBFighter;
 
-    public GameObject enemyFighter;
-    public GameObject enemyRBFighter;
 
     public Transform LeftSpawnPos;
     public Transform RightSpawnPos;
@@ -21,21 +17,21 @@ public class PlayerSpawnPosManager : MonoBehaviour
         //If 0 default left side start
         if (GameOptions.Instance.CharacterIndex == false)
         {
-            playerFighter.transform.position = LeftSpawnPos.position;
-            playerRBFighter.transform.position = LeftSpawnPos.position;
+            StaticBuffers.Instance.Player.transform.position = LeftSpawnPos.position;
+            StaticBuffers.Instance.PlayerRB.transform.position = LeftSpawnPos.position;
 
-            enemyFighter.transform.position = RightSpawnPos.position;
-            enemyRBFighter.transform.position = RightSpawnPos.position;
+            StaticBuffers.Instance.Enemy.transform.position = RightSpawnPos.position;
+            StaticBuffers.Instance.EnemyRB.transform.position = RightSpawnPos.position;
 
         }
         else
         {
-            enemyFighter.transform.position = LeftSpawnPos.position;
-            enemyRBFighter.transform.position = LeftSpawnPos.position;
+            StaticBuffers.Instance.Enemy.transform.position = LeftSpawnPos.position;
+            StaticBuffers.Instance.EnemyRB.transform.position = LeftSpawnPos.position;
 
 
-            playerFighter.transform.position = RightSpawnPos.position;
-            playerRBFighter.transform.position = RightSpawnPos.position;
+            StaticBuffers.Instance.Player.transform.position = RightSpawnPos.position;
+            StaticBuffers.Instance.PlayerRB.transform.position = RightSpawnPos.position;
 
         }
 
