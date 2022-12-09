@@ -77,18 +77,11 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     {
         for (int i = 0; i < frames; i++)
         {
-            //UPDATE METHOD
-            //horizontalMovement = new Vector3(0, 0, 0);
-
-
             OrientToEnemy(GetEnemy()?.transform);
 
             //Simulate the input buffer as the frame it was send in
             // this will always pass
             ProcessInputBuffer(inputBuffer, inputBuffer.BufferedInput.Peek().TimeStamp);
-            //ProcessInputBuffer(inputFrame, inputFrame.TimeStamp);
-
-            //animator.SetFloat("XSpeed", horizontalMovement.x);
         }
 
 
@@ -135,8 +128,13 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
    
        OrientToEnemy(GetEnemy()?.transform);
-       ProcessInputBuffer(InputBuffer, GetGameFrame());
+        if (InputBuffer.IsReady)
+        {
+            ProcessInputBuffer(InputBuffer, GetGameFrame());
+        }
     }
+
+
 
   
     void OrientToEnemy(Transform enemyTransform) 
@@ -154,9 +152,25 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         }
     }
     public int OffsetGameFrame=0;
-    int GetGameFrame() 
+    public int GetGameFrame() 
     {
         return FrameLimiter.Instance.FramesInPlay + OffsetGameFrame;
+    }
+
+    public int TimeStampDifference
+    {
+        get
+        {
+            return this.InputBuffer.LastFrame.TimeStamp - GetGameFrame() - this.InputBuffer.DelayInput;
+        }
+    }
+
+    InputFrame GetPredictedOutput(InputFrame lastReceived) 
+    {
+        Debug.LogError($"Predicted input from {lastReceived.TimeStamp}");
+
+        return new InputFrame(lastReceived._inputInFrame,
+                  FrameLimiter.Instance.FramesInPlay);
     }
     void ProcessInputBuffer(InputBuffer inputBuffer,int frameToSimulate=0) 
     {
@@ -181,19 +195,39 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         //If combos/special attack is not found 
         //Todo this will not aacount for multiple pressed keys at once
 
-        if (inputBuffer.BufferedInput!=null && inputBuffer.BufferedInput.Count!=0)
-        {
-            var firstFrame = inputBuffer.BufferedInput.Peek();
-            if (this.OffsetGameFrame>-3 && this.isEnemy)
-            {
-                Debug.LogError($"Diff {firstFrame.TimeStamp - frameToSimulate}");
-            }
-            //if (firstFrame.TimeStamp == frameToSimulate)
-            //{
-                OnInputProcessed?.Invoke(firstFrame);
-                ProcessInputs(firstFrame._inputInFrame);
 
-                LastFrameProcessed = firstFrame.TimeStamp;
+        //inputBuffer.BufferedInput.Count != 0
+        if (inputBuffer.BufferedInput!=null)
+        {
+            if (TimeStampDifference == 0)
+            {
+                //Predict based on the last input
+               // inputBuffer.AddNewFrame(GetPredictedOutput(inputBuffer.LastFrame));
+            }
+
+
+
+            var inputToExec = inputBuffer.BufferedInput.Peek();
+
+
+            //Prediction 
+            //Only on enemy fighter that doesnt have its timestamp matching
+            // the game frame
+            
+
+            //if (this.OffsetGameFrame>-3 && this.isEnemy)
+            //{
+
+            //    Debug.LogError($"Diff {inputToExec.TimeStamp - frameToSimulate}");
+            //}
+
+
+            //if (inputToExec.TimeStamp == frameToSimulate)
+            //{
+                OnInputProcessed?.Invoke(inputToExec);
+                ProcessInputs(inputToExec._inputInFrame);
+
+                LastFrameProcessed = inputToExec.TimeStamp;
            // }
         }
        

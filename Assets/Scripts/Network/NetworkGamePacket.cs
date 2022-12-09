@@ -114,15 +114,23 @@ public class NetworkGamePacket : MonoBehaviour
             LastReceivedGamePacket = SocketComunication.RawDeserialize<GamePacket>(arg.Buffer, 0);
             //TODO probably will need a lock
 
+            //The current expected input buffer
+            //ideal case gameFrame + Delay 
+
+
             //Could run before input buffer objects are init
-            if (StaticBuffers.Instance != null)
-            {
-                if (StaticBuffers.Instance.EnemyBuffer != null)
-                {
-                    StaticBuffers.Instance.EnemyBuffer.AddNewFrame(
-                       new InputFrame(LastReceivedGamePacket.InputElements,LastReceivedGamePacket.TimeStamp));
-                }
-            }
+
+            StaticBuffers.Instance.EnemyBuffer?.AddNewFrame(
+                       new InputFrame(LastReceivedGamePacket.InputElements,
+                                      LastReceivedGamePacket.TimeStamp));
+            //if (StaticBuffers.Instance != null)
+            //{
+            //    if (StaticBuffers.Instance.EnemyBuffer != null)
+            //    {
+            //        StaticBuffers.Instance.EnemyBuffer.AddNewFrame(
+            //           new InputFrame(LastReceivedGamePacket.InputElements,LastReceivedGamePacket.TimeStamp));
+            //    }
+            //}
 
            
         }

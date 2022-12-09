@@ -21,7 +21,6 @@ public class AttachDiscardedInputToBuffer : MonoBehaviour
         {
             Fighter.OnInputProcessed +=
           (InputFrame f) => {
-              Debug.LogError("Enemy RB Received");
               StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>()
             .InputBuffer.AddNewFrame(f);
           };

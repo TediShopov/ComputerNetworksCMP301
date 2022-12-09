@@ -73,15 +73,30 @@ public class InputBuffer :MonoBehaviour
     public int RefreshKeyPressedAfterFrames=120;
     private int _framesPassedSinceKeyDown=0;
 
-
+    //The buffer is ready when there is enough buffered input
+    //to match the delay
+    public bool IsReady { get {return this.BufferedInput.Count >= DelayInput; } }
     public InputFrame LastFrame { get; set; }
 
-    public void  Start()
+    public void  Awake()
     {
         BufferedInput = new Queue<InputFrame>();
         PressedKeys = new Queue<KeyCode>();
         KeyDowned = new HashSet<KeyCode>();
         OnInputFrameAdded += RecordKeysDown;
+    }
+   
+
+    public void SetTo(InputBuffer inputBuffer) 
+    {
+        BufferedInput = new Queue<InputFrame>( inputBuffer.BufferedInput);
+        PressedKeys = new Queue<KeyCode>( inputBuffer.PressedKeys);
+        KeyDowned = new HashSet<KeyCode>( inputBuffer.KeyDowned);
+        LastFrame = inputBuffer.LastFrame;
+        this.CollectInputFromKeyboard = inputBuffer.CollectInputFromKeyboard;
+        this.PressedKeysMaxCount = inputBuffer.PressedKeysMaxCount;
+        this.RefreshKeyPressedAfterFrames = inputBuffer.RefreshKeyPressedAfterFrames;
+        this._framesPassedSinceKeyDown = inputBuffer._framesPassedSinceKeyDown;
     }
 
     public void Update()

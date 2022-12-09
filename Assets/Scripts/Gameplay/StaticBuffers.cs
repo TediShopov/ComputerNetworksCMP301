@@ -36,7 +36,7 @@ public class StaticBuffers : MonoBehaviour
     }
 
     public static StaticBuffers Instance;
-    void Start()
+    void Awake()
     {
         Instance = this;
         RenewBuffers();

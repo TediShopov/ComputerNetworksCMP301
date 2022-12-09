@@ -51,11 +51,7 @@ public class Rollback : MonoBehaviour
             }
         }
 
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                ClientData.Pause = false;
-
-            }
+          
             // }
         
     }
