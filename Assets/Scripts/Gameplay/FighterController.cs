@@ -23,8 +23,8 @@ public class FighterController : MonoBehaviour
      
     private Rigidbody2D rigidbody2d;
 
-    [SerializeField]
-    public InputBuffer InputBuffer;
+    //[SerializeField]
+    public InputBuffer InputBuffer { get; set; }
     private int LastFrameProcessed;
 
     //[SerializeField]

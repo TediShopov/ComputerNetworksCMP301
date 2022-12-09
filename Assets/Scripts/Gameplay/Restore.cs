@@ -111,9 +111,9 @@ public class Restore : MonoBehaviour
         EnemyFighterController = StaticBuffers.Instance.Player.GetComponent<FighterController>();
 
 
-        var playerBufferCopy = Instantiate<InputBuffer>(StaticBuffers.Instance.PlayerRB.GetComponent<InputBuffer>());
+        var playerBufferCopy = new InputBuffer();
         playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<InputBuffer>());
-        var enemyBufferCopy = Instantiate<InputBuffer>(StaticBuffers.Instance.EnemyRB.GetComponent<InputBuffer>());
+        var enemyBufferCopy = new InputBuffer();
         enemyBufferCopy.SetTo(StaticBuffers.Instance.EnemyRB.GetComponent<InputBuffer>());
 
 

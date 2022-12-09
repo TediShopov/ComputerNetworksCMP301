@@ -50,14 +50,11 @@ public class InputFrame
 }
 
 
-public class InputBuffer :MonoBehaviour
+public class InputBuffer 
 {
     //TODO make buffer only accpets keys that do sth in the game
 
     public Queue<InputFrame> BufferedInput { get; set; }
-    [SerializeField]
-    public bool CollectInputFromKeyboard;
-    [SerializeField]
     public int DelayInput;
 
     public  delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
@@ -65,11 +62,8 @@ public class InputBuffer :MonoBehaviour
     public event InputFrameDelegate OnInputFrameDiscarded; // event
 
     public Queue<KeyCode> PressedKeys;
-
     public HashSet<KeyCode> KeyDowned;
-    [SerializeField]
     public int PressedKeysMaxCount=5;
-    [SerializeField]
     public int RefreshKeyPressedAfterFrames=120;
     private int _framesPassedSinceKeyDown=0;
 
@@ -78,12 +72,17 @@ public class InputBuffer :MonoBehaviour
     public bool IsReady { get {return this.BufferedInput.Count >= DelayInput; } }
     public InputFrame LastFrame { get; set; }
 
-    public void  Awake()
+    public InputBuffer()
     {
         BufferedInput = new Queue<InputFrame>();
         PressedKeys = new Queue<KeyCode>();
         KeyDowned = new HashSet<KeyCode>();
         OnInputFrameAdded += RecordKeysDown;
+    }
+
+    public InputBuffer(InputBuffer inputBuffer)
+    {
+        this.SetTo(inputBuffer);
     }
    
 
@@ -93,38 +92,14 @@ public class InputBuffer :MonoBehaviour
         PressedKeys = new Queue<KeyCode>( inputBuffer.PressedKeys);
         KeyDowned = new HashSet<KeyCode>( inputBuffer.KeyDowned);
         LastFrame = inputBuffer.LastFrame;
-        this.CollectInputFromKeyboard = inputBuffer.CollectInputFromKeyboard;
         this.PressedKeysMaxCount = inputBuffer.PressedKeysMaxCount;
         this.RefreshKeyPressedAfterFrames = inputBuffer.RefreshKeyPressedAfterFrames;
         this._framesPassedSinceKeyDown = inputBuffer._framesPassedSinceKeyDown;
     }
 
-    public void Update()
-    {
-        if (CollectInputFromKeyboard)
-        {
-            AddNewFrame();
-            //DebugPrintKeysDown();
-
-        }
-        _framesPassedSinceKeyDown++;
-        if (_framesPassedSinceKeyDown>=RefreshKeyPressedAfterFrames)
-        {
-            
-            PressedKeys.Clear();
-            _framesPassedSinceKeyDown = 0;
-        }
-    }
+   
 
 
-    // Update is called once per frame
-
-    // Curr Frame   0,    1,      2,        3,          4           5
-    //              [3]  [3,4]    [3,4,5]   [3,4,5,6]   [4,5,6,7]   [5,6,7,8]
-
-    //RB buffer 
-    //Curr  Frame   7    8              11 - 8
-    //  [3,4,5,6,7]     [3,4,5,6,7,8]   [4,5,6,7,8,9,10,11]
 
     public void AddNewFrame(InputFrame inputFrame = null)
     {
@@ -213,6 +188,18 @@ public class InputBuffer :MonoBehaviour
             return this.BufferedInput.Peek();
         }
         return new InputFrame();
+    }
+
+    public void OnUpdate() 
+    
+    {
+        _framesPassedSinceKeyDown++;
+        if (_framesPassedSinceKeyDown >= RefreshKeyPressedAfterFrames)
+        {
+
+            PressedKeys.Clear();
+            _framesPassedSinceKeyDown = 0;
+        }
     }
 
 

@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 4269862869515494953}
   - component: {fileID: 4269862869515494963}
   m_Layer: 0
-  m_Name: PlayerFighter
+  m_Name: Fighter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -195,7 +195,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6b8955d0ca7f484ca7ddd29c5363fd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 4269862869515494960}
   TimesForComboAdvance:
   - 0.3
   - 0.7
@@ -216,10 +215,7 @@ MonoBehaviour:
   jumpPower: 8
   waitAfterJump: 0.5
   groundCollider: {fileID: 4269862869515494957}
-  enemy: {fileID: 0}
-  InputBuffer: {fileID: 4269862869515494953}
-  animator: {fileID: 4269862869515494960}
-  spriteRenderer: {fileID: 4269862869515494961}
+  isEnemy: 0
   OffsetGameFrame: 0
 --- !u!114 &4269862869515494954
 MonoBehaviour:
@@ -245,10 +241,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4269862869515494952}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f12e76aa99c65f4989dd4785a72fc0d, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e4fe38207c76994ea0a6a60a7ee47e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CollectInputFromKeyboard: 1
+  CollectInputFromKeyboard: 0
   DelayInput: 3
   PressedKeysMaxCount: 5
   RefreshKeyPressedAfterFrames: 120
@@ -264,5 +260,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cdf1ecb118268745854c0198632c563, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Fighter: {fileID: 4269862869515494955}
-  RollbackBuffer: {fileID: 0}
