@@ -77,7 +77,7 @@ public class InputBuffer
         BufferedInput = new Queue<InputFrame>();
         PressedKeys = new Queue<KeyCode>();
         KeyDowned = new HashSet<KeyCode>();
-        OnInputFrameAdded += RecordKeysDown;
+        //OnInputFrameAdded += RecordKeysDown;
     }
 
     public InputBuffer(InputBuffer inputBuffer)
@@ -95,6 +95,8 @@ public class InputBuffer
         this.PressedKeysMaxCount = inputBuffer.PressedKeysMaxCount;
         this.RefreshKeyPressedAfterFrames = inputBuffer.RefreshKeyPressedAfterFrames;
         this._framesPassedSinceKeyDown = inputBuffer._framesPassedSinceKeyDown;
+        this.OnInputFrameAdded = inputBuffer.OnInputFrameAdded;
+        this.OnInputFrameDiscarded = inputBuffer.OnInputFrameDiscarded;
     }
 
    
@@ -105,6 +107,7 @@ public class InputBuffer
     {
         // A S D SPACE 
         // 1 0 0 0
+
         if (inputFrame == null)
         {
             inputFrame = new InputFrame(ClientData.AllowedKeys, DelayInput);
@@ -119,6 +122,8 @@ public class InputBuffer
         LastFrame = inputFrame;
 
         //Call on add event
+        RecordKeysDown(inputFrame);
+
         OnInputFrameAdded?.Invoke(inputFrame);
 
 

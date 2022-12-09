@@ -23,14 +23,23 @@ public class Restore : MonoBehaviour
         newObject.transform.position = RBTransform.position;
         newObject.transform.rotation = RBTransform.rotation;
         newObject.transform.parent = RBTransform.parent;
-        newObject.GetComponent<FighterController>().isEnemy = from.GetComponent<FighterController>().isEnemy;
-        newObject.GetComponent<InputBuffer>().SetTo(toReplace.GetComponent<InputBuffer>());
-        
-           
+        bool isEnemy = from.GetComponent<FighterController>().isEnemy;
+        newObject.GetComponent<FighterController>().isEnemy = isEnemy;
+        newObject.GetComponent<FighterBufferMono>()
+            .InputBuffer.SetTo(toReplace.GetComponent<FighterBufferMono>().InputBuffer);
+        if (!isEnemy)
+        {
+            newObject.GetComponent<FighterBufferMono>().CollectInputFromKeyboard=true;
+
+        }
+
+
         //Extract RB object Input Buffer and reenact it on the player object
 
 
         Destroy(toReplace);
+        toReplace.SetActive(false);
+        
         Debug.LogError("Destroyed Original Player Fighter Object");
         toReplace = newObject;
 
@@ -80,7 +89,8 @@ public class Restore : MonoBehaviour
         EnemyFighterController =  StaticBuffers.Instance.Player.GetComponent<FighterController>();
 
         StaticBuffers.Instance.EnemyBuffer.OnInputFrameAdded+=
-            (InputFrame f) => { InputRollback = EnemyFighterController.TimeStampDifference; };
+            (InputFrame f) => {
+                InputRollback = EnemyFighterController.TimeStampDifference; };
     }
 
     // Update is called once per frame
@@ -92,8 +102,8 @@ public class Restore : MonoBehaviour
         }
         if (InputRollback<0)
         {
-            //Debug.LogError($"Received Buffer  rollback to {InputRollback}");
-            //Rollback(-InputRollback);
+            Debug.LogError($"Received Buffer  rollback to {InputRollback}");
+            Rollback(-InputRollback);
             InputRollback = 0;
         }
         if (Input.GetKeyDown(KeyCode.P))
@@ -112,9 +122,9 @@ public class Restore : MonoBehaviour
 
 
         var playerBufferCopy = new InputBuffer();
-        playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<InputBuffer>());
+        playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer);
         var enemyBufferCopy = new InputBuffer();
-        enemyBufferCopy.SetTo(StaticBuffers.Instance.EnemyRB.GetComponent<InputBuffer>());
+        enemyBufferCopy.SetTo(StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer);
 
 
    
