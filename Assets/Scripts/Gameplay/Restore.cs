@@ -32,6 +32,10 @@ public class Restore : MonoBehaviour
             newObject.GetComponent<FighterBufferMono>().CollectInputFromKeyboard=true;
 
         }
+        else
+        {
+            newObject.GetComponent<SpriteRenderer>().color = Color.red;
+        }
 
 
         //Extract RB object Input Buffer and reenact it on the player object
@@ -126,17 +130,28 @@ public class Restore : MonoBehaviour
         var enemyBufferCopy = new InputBuffer();
         enemyBufferCopy.SetTo(StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer);
 
+        //if (playerBufferCopy.BufferedInput.Count>0)
+        //{
+        //    playerBufferCopy.BufferedInput.Dequeue();
 
-   
+        //}
+
+        //if (enemyBufferCopy.BufferedInput.Count > 0)
+        //{
+        //    enemyBufferCopy.BufferedInput.Dequeue();
+
+        //}
+
 
         for (int i = 0; i < frames; i++)
         {
-            ResimulateFramesForFighter(
-                StaticBuffers.Instance.Player.GetComponent<FighterController>()
-                ,playerBufferCopy, 1);
-            ResimulateFramesForFighter(
-               StaticBuffers.Instance.Enemy.GetComponent<FighterController>()
-               , enemyBufferCopy, 1);
+            
+                ResimulateFramesForFighter(
+                    StaticBuffers.Instance.Player.GetComponent<FighterController>()
+                    , playerBufferCopy, 1);
+                ResimulateFramesForFighter(
+                   StaticBuffers.Instance.Enemy.GetComponent<FighterController>()
+                   , enemyBufferCopy, 1);
 
         }
     }
