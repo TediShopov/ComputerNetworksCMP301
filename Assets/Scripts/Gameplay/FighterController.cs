@@ -46,32 +46,6 @@ public class FighterController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
     }
-    //void Start()
-    //{
-    //    LastFrameProcessed = 0;
-      
-    //    rigidbody2d = GetComponent<Rigidbody2D>();
-    //    animator = GetComponent<Animator>();
-    //    spriteRenderer = GetComponent<SpriteRenderer>();
-
-    //    Debug.LogError($"InputBuffer {this.GetInstanceID()} is an active object ");
-    //    //StartCoroutine(RefreshTimestamp());
-    //}
-
-
-  
-    //public void SetStateTo(FighterController otherFighter)
-    //{
-    //    //Set all State Values
-    //     isGrounded = otherFighter.isGrounded;
-    //     isCrouched = otherFighter.isCrouched;
-    //     waitAfterJump = otherFighter.waitAfterJump;
-
-
-        
-    //}
-
-
 
 public void ResimulateInput(InputBuffer inputBuffer,int frames) 
     {
@@ -116,8 +90,10 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         }
       
     }
+
+
     // Update is called once per frame
-    void Update()
+     public virtual void Update()
     {
       
 

@@ -23,7 +23,7 @@ public class Restore : MonoBehaviour
         newObject.transform.position = RBTransform.position;
         newObject.transform.rotation = RBTransform.rotation;
         newObject.transform.parent = RBTransform.parent;
-        bool isEnemy = from.GetComponent<FighterController>().isEnemy;
+        bool isEnemy = from.GetComponent<FighterRBControlller>().isEnemy;
         newObject.GetComponent<FighterController>().isEnemy = isEnemy;
         newObject.GetComponent<FighterBufferMono>()
             .InputBuffer.SetTo(toReplace.GetComponent<FighterBufferMono>().InputBuffer);

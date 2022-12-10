@@ -1,5 +1,23 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &9069453334225215974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3339058037831889129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7433159cac786943a1df1e2027c91ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  jumpPower: 8
+  waitAfterJump: 0.5
+  groundCollider: {fileID: 3339058037831889132}
+  isEnemy: 0
+  OffsetGameFrame: -7
 --- !u!1001 &1519734183431771841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31,6 +49,11 @@ PrefabInstance:
         type: 3}
       propertyPath: OffsetGameFrame
       value: -7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269862869515494959, guid: d125a66148a66a9418bd32f22a20493a,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4269862869515494961, guid: d125a66148a66a9418bd32f22a20493a,
         type: 3}
@@ -104,4 +127,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4269862869515494963, guid: d125a66148a66a9418bd32f22a20493a, type: 3}
+    - {fileID: 4269862869515494955, guid: d125a66148a66a9418bd32f22a20493a, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: d125a66148a66a9418bd32f22a20493a, type: 3}
+--- !u!1 &3339058037831889129 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4269862869515494952, guid: d125a66148a66a9418bd32f22a20493a,
+    type: 3}
+  m_PrefabInstance: {fileID: 1519734183431771841}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &3339058037831889132 stripped
+BoxCollider2D:
+  m_CorrespondingSourceObject: {fileID: 4269862869515494957, guid: d125a66148a66a9418bd32f22a20493a,
+    type: 3}
+  m_PrefabInstance: {fileID: 1519734183431771841}
+  m_PrefabAsset: {fileID: 0}
