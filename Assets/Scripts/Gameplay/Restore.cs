@@ -17,6 +17,12 @@ public class Restore : MonoBehaviour
        
         GameObject newObject;
         newObject = Instantiate(FighterPrefab);
+        if (newObject)
+        {
+            Debug.LogError("ACTIVE OBJ");
+        }
+
+        
         Debug.LogError("Instantiated  NEW Player Fighter");
         try
         {
@@ -78,14 +84,12 @@ public class Restore : MonoBehaviour
         Debug.LogError($"Resimulating from{FrameLimiter.Instance.FramesInPlay} " +
             $" {inputBuffer.BufferedInput.Peek().TimeStamp} Frames");
      
-        fighter.ResimulateInput(
-            inputBuffer,
-            frames);
-
-
+      
         for (int i = 0; i < frames; i++)
         {
-            inputBuffer.BufferedInput.Dequeue();
+            fighter.ResimulateInput(
+            inputBuffer,
+            frames);
         }
 
     }
@@ -110,9 +114,9 @@ public class Restore : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKey(KeyCode.B))
         {
-            Rollback(8);
+            Rollback(7);
         }
         if (RollbackFrames<0)
         {
@@ -178,7 +182,7 @@ public class Restore : MonoBehaviour
         ReplaceObject(ref StaticBuffers.Instance.Player, StaticBuffers.Instance.PlayerRB);
         ReplaceObject(ref StaticBuffers.Instance.Enemy, StaticBuffers.Instance.EnemyRB);
         StaticBuffers.Instance.RenewBuffers();
-        EnemyFighterController = StaticBuffers.Instance.Player.GetComponent<FighterController>();
+        EnemyFighterController = StaticBuffers.Instance.Enemy.GetComponent<FighterController>();
 
 
         var playerBufferCopy = new InputBuffer();
@@ -203,5 +207,7 @@ public class Restore : MonoBehaviour
                    , enemyBufferCopy, 1);
 
         }
+
+
     }
 }

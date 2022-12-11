@@ -94,8 +94,8 @@ public class InputBuffer
         this.PressedKeysMaxCount = inputBuffer.PressedKeysMaxCount;
         this.RefreshKeyPressedAfterFrames = inputBuffer.RefreshKeyPressedAfterFrames;
         this._framesPassedSinceKeyDown = inputBuffer._framesPassedSinceKeyDown;
-        this.OnInputFrameAdded = inputBuffer.OnInputFrameAdded;
-        this.OnInputFrameDiscarded = inputBuffer.OnInputFrameDiscarded;
+        //this.OnInputFrameAdded = inputBuffer.OnInputFrameAdded;
+        //this.OnInputFrameDiscarded = inputBuffer.OnInputFrameDiscarded;
     }
 
    

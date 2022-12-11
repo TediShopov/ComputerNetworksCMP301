@@ -55,7 +55,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
             //Simulate the input buffer as the frame it was send in
             // this will always pass
-            ProcessInputBuffer(inputBuffer, inputBuffer.BufferedInput.Peek().TimeStamp);
+            ProcessInputBuffer(inputBuffer, inputBuffer.BufferedInput.Peek().TimeStamp,true);
         }
 
 
@@ -148,7 +148,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         return new InputFrame(lastReceived._inputInFrame,
                   FrameLimiter.Instance.FramesInPlay+InputBuffer.DelayInput);
     }
-    void ProcessInputBuffer(InputBuffer inputBuffer,int frameToSimulate=0) 
+    void ProcessInputBuffer(InputBuffer inputBuffer,int frameToSimulate=0,bool isSilent = false ) 
     {
         if (inputBuffer == null)
         {
@@ -233,7 +233,10 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         {
             if (FrameLimiter.Instance.FramesInPlay >= inputBuffer.DelayInput)
             {
-
+                if (inputBuffer.BufferedInput.Count<=0)
+                {
+                    return;
+                }
                 //if (isEnemy==true && inputBuffer.BufferedInput.Count > 5)
                 //{
                 //    ClientData.Pause = true;
@@ -242,20 +245,29 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
                 //}
 
-                
-               
 
-                if (isEnemy)
+
+
+                //if (isEnemy)
+                //{
+                //    int lowdiff = FrameLimiter.Instance.FramesInPlay - inputBuffer.Peek().TimeStamp;
+                //    int highdiff = FrameLimiter.Instance.FramesInPlay - inputBuffer.LastFrame.TimeStamp;
+
+                //    Debug.LogError($"Enemy High Diff:: {highdiff}");
+                //    Debug.LogError($"Enemy Low Diff:: {lowdiff}");
+
+
+                //}
+                InputFrame input;
+                if (isSilent)
                 {
-                    int lowdiff = FrameLimiter.Instance.FramesInPlay - inputBuffer.Peek().TimeStamp;
-                    int highdiff = FrameLimiter.Instance.FramesInPlay - inputBuffer.LastFrame.TimeStamp;
-
-                    Debug.LogError($"Enemy High Diff:: {highdiff}");
-                    Debug.LogError($"Enemy Low Diff:: {lowdiff}");
-
-
+                     input = inputBuffer.BufferedInput.Dequeue();
                 }
-                InputFrame input = inputBuffer.Dequeue();
+                else
+                {
+                    input = inputBuffer.Dequeue();
+                }
+                 
                
 
 
