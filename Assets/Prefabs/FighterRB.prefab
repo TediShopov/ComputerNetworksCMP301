@@ -18,6 +18,7 @@ MonoBehaviour:
   groundCollider: {fileID: 3339058037831889132}
   isEnemy: 0
   OffsetGameFrame: -7
+  ExecuteOnlyOnOverflow: 1
 --- !u!1001 &1519734183431771841
 PrefabInstance:
   m_ObjectHideFlags: 0

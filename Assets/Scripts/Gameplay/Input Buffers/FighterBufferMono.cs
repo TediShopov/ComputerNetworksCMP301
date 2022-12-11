@@ -29,9 +29,9 @@ public class FighterBufferMono : MonoBehaviour
     
     public void Update()
     {
-        if (CollectInputFromKeyboard)
+        if (CollectInputFromKeyboard && !ClientData.Pause)
         {
-            InputBuffer.AddNewFrame();
+            InputBuffer.Enqueue();
             //DebugPrintKeysDown();
 
         }

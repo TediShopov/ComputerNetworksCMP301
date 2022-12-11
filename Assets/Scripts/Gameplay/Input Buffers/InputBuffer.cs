@@ -69,7 +69,7 @@ public class InputBuffer
 
     //The buffer is ready when there is enough buffered input
     //to match the delay
-    public bool IsReady { get {return this.BufferedInput.Count >= DelayInput; } }
+    public bool IsReady { get {return this.BufferedInput.Count > DelayInput; } }
     public InputFrame LastFrame { get; set; }
 
     public InputBuffer()
@@ -77,7 +77,6 @@ public class InputBuffer
         BufferedInput = new Queue<InputFrame>();
         PressedKeys = new Queue<KeyCode>();
         KeyDowned = new HashSet<KeyCode>();
-        //OnInputFrameAdded += RecordKeysDown;
     }
 
     public InputBuffer(InputBuffer inputBuffer)
@@ -102,23 +101,20 @@ public class InputBuffer
    
 
 
-
-    public void AddNewFrame(InputFrame inputFrame = null)
+    public bool IsOverflow { get {return BufferedInput.Count > DelayInput;}}
+    public void Enqueue(InputFrame inputFrame = null)
     {
-        // A S D SPACE 
-        // 1 0 0 0
-
         if (inputFrame == null)
         {
             inputFrame = new InputFrame(ClientData.AllowedKeys, DelayInput);
         }
-        if (BufferedInput.Count > DelayInput)
-        {
-            var deqInputFrame = BufferedInput.Dequeue();
-            OnInputFrameDiscarded?.Invoke(deqInputFrame);
-        }
-        BufferedInput.Enqueue(inputFrame);
        
+        BufferedInput.Enqueue(inputFrame);
+        //if (BufferedInput.Count > DelayInput)
+        //{
+        //    var deqInputFrame = BufferedInput.Dequeue();
+        //    OnInputFrameDiscarded?.Invoke(deqInputFrame);
+        //}
         LastFrame = inputFrame;
 
         //Call on add event
@@ -127,6 +123,18 @@ public class InputBuffer
         OnInputFrameAdded?.Invoke(inputFrame);
 
 
+    }
+
+    
+
+    public InputFrame Dequeue() 
+    {
+        if (this.BufferedInput?.Count<=0)
+        {
+            return null;
+        }
+        OnInputFrameDiscarded?.Invoke(this.BufferedInput.Peek());
+        return this.BufferedInput.Dequeue();
     }
 
 
@@ -186,7 +194,7 @@ public class InputBuffer
         
        
     }
-    public InputFrame GetFirstFrame()
+    public InputFrame Peek()
     {
         if (this.BufferedInput != null && this.BufferedInput.Count > 0)
         {

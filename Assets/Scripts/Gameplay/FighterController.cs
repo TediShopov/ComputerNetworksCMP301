@@ -33,8 +33,8 @@ public class FighterController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     // Start is called before the first frame update
 
-    public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
-    public event InputFrameDelegate OnInputProcessed; // event
+    //public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
+    //public event InputFrameDelegate OnInputProcessed; // event
 
 
     private void Awake()
@@ -96,14 +96,12 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
      public virtual void Update()
     {
       
-
         if (ClientData.Pause)
         {
             return;
         }
 
-   
-       OrientToEnemy(GetEnemy()?.transform);
+        OrientToEnemy(GetEnemy()?.transform);
         if (InputBuffer.IsReady)
         {
             ProcessInputBuffer(InputBuffer, GetGameFrame());
@@ -128,6 +126,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         }
     }
     public int OffsetGameFrame=0;
+
+    public bool ExecuteOnlyOnOverflow;
     public int GetGameFrame() 
     {
         return FrameLimiter.Instance.FramesInPlay + OffsetGameFrame;
@@ -146,7 +146,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         Debug.LogError($"Predicted input from {lastReceived.TimeStamp}");
 
         return new InputFrame(lastReceived._inputInFrame,
-                  FrameLimiter.Instance.FramesInPlay);
+                  FrameLimiter.Instance.FramesInPlay+InputBuffer.DelayInput);
     }
     void ProcessInputBuffer(InputBuffer inputBuffer,int frameToSimulate=0) 
     {
@@ -173,40 +173,100 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
 
         //inputBuffer.BufferedInput.Count != 0
-        if (inputBuffer.BufferedInput!=null)
+        //if (inputBuffer.BufferedInput!=null)
+        //{
+        //    if (TimeStampDifference < 0)
+        //    {
+        //        //if (!this.isEnemy)
+        //        //{
+        //        //    Debug.LogError($"This functionality shoudlnever happend on paleyr");
+        //        //}
+        //        //if (TimeStampDifference<-2)
+        //        //{
+        //        //    Debug.LogError($"Predictor should NEVER REACH THIS STATE");
+
+        //        //}
+        //        //Predict based on the last input
+        //      // inputBuffer.Enqueue(GetPredictedOutput(inputBuffer.LastFrame));
+        //    }
+
+
+
+        //    var inputToExec = inputBuffer.BufferedInput.Peek();
+
+
+        //    //Prediction 
+        //    //Only on enemy fighter that doesnt have its timestamp matching
+        //    // the game frame
+
+
+        //    if (this.OffsetGameFrame > -3 && this.isEnemy)
+        //    {
+
+        //        Debug.LogError($"Diff {inputToExec.TimeStamp - frameToSimulate}");
+        //    }
+
+
+        //    //if (inputToExec.TimeStamp == frameToSimulate)
+        //    //{
+        //    OnInputProcessed?.Invoke(inputToExec);
+        //        ProcessInputs(inputToExec._inputInFrame);
+
+        //        LastFrameProcessed = inputToExec.TimeStamp;
+        //   // }
+        //}
+
+        //Mode for the RB to simulate delay
+        if (ExecuteOnlyOnOverflow)
         {
-            if (TimeStampDifference == 0)
+            if (inputBuffer.IsOverflow)
             {
-                //Predict based on the last input
-               // inputBuffer.AddNewFrame(GetPredictedOutput(inputBuffer.LastFrame));
+                InputFrame input = inputBuffer.Dequeue();
+                int diff = GetGameFrame() - input.TimeStamp;
+               // Debug.LogError($" RB Timestamp difference is {diff}");
+                ProcessInputs(input._inputInFrame);
+                LastFrameProcessed = input.TimeStamp;
+            }
+          
+        }
+        else
+        {
+            if (FrameLimiter.Instance.FramesInPlay >= inputBuffer.DelayInput)
+            {
+
+                //if (isEnemy==true && inputBuffer.BufferedInput.Count > 5)
+                //{
+                //    ClientData.Pause = true;
+                //    Debug.LogError($"Current Frame: {FrameLimiter.Instance.FramesInPlay}");
+                //    inputBuffer.DebugPrint();
+
+                //}
+
+                
+               
+
+                if (isEnemy)
+                {
+                    int lowdiff = FrameLimiter.Instance.FramesInPlay - inputBuffer.Peek().TimeStamp;
+                    int highdiff = FrameLimiter.Instance.FramesInPlay - inputBuffer.LastFrame.TimeStamp;
+
+                    Debug.LogError($"Enemy High Diff:: {highdiff}");
+                    Debug.LogError($"Enemy Low Diff:: {lowdiff}");
+
+
+                }
+                InputFrame input = inputBuffer.Dequeue();
+               
+
+
+                ProcessInputs(input._inputInFrame);
+                LastFrameProcessed = input.TimeStamp;
             }
 
-
-
-            var inputToExec = inputBuffer.BufferedInput.Peek();
-
-
-            //Prediction 
-            //Only on enemy fighter that doesnt have its timestamp matching
-            // the game frame
-            
-
-            //if (this.OffsetGameFrame>-3 && this.isEnemy)
-            //{
-
-            //    Debug.LogError($"Diff {inputToExec.TimeStamp - frameToSimulate}");
-            //}
-
-
-            //if (inputToExec.TimeStamp == frameToSimulate)
-            //{
-                OnInputProcessed?.Invoke(inputToExec);
-                ProcessInputs(inputToExec._inputInFrame);
-
-                LastFrameProcessed = inputToExec.TimeStamp;
-           // }
         }
-       
+
+
+
 
     }
 

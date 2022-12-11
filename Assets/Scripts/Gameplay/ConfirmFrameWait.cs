@@ -22,25 +22,20 @@ public class ConfirmFrameWait : MonoBehaviour
 
     static int GetConfirmFrame(InputBuffer b, InputBuffer b2)
     {
-        if (b==null || b2==null)
+        if (b2.LastFrame==null && b.LastFrame==null )
         {
             return -1;
         }
-        if (b2.BufferedInput == null || b2.BufferedInput.Count == 0
-            || b.BufferedInput == null || b.BufferedInput.Count == 0)
-        {
-            return -1;
-        }
-
-        //Have to be algigned perfectly 
-        if (b.BufferedInput.Peek().TimeStamp != b2.BufferedInput.Peek().TimeStamp)
-        {
-            return -1;
-        }
-        else
-        {
-           return b2.LastFrame.TimeStamp;
-        }
+        return b2.LastFrame.TimeStamp;
+        ////Have to be algigned perfectly 
+        //if (b.Peek().TimeStamp != b2.Peek().TimeStamp)
+        //{
+        //    return -1;
+        //}
+        //else
+        //{
+        //   return b2.LastFrame.TimeStamp;
+        //}
        
 
     }
@@ -53,8 +48,7 @@ public class ConfirmFrameWait : MonoBehaviour
     {
         StaticBuffers.Instance.EnemyBuffer.OnInputFrameAdded+=OnBufferUpdate;
         StaticBuffers.Instance.PlayerBuffer.OnInputFrameAdded += OnBufferUpdate;
-        //IsEnabled = !ClientData.SoloPlay;
-        IsEnabled = false;
+        IsEnabled = !ClientData.SoloPlay;
     }
     void Update()
     {
