@@ -35,12 +35,12 @@ public class PlayerHealth : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Y) && this.isPlayerHp)
         {
-            health.CurrentHealth -= 20;
+            health.TakeDamage(20);
         }
 
         if (Input.GetKeyDown(KeyCode.U) && !this.isPlayerHp)
         {
-            health.CurrentHealth -= 20;
+            health.TakeDamage(20);
         }
         
         float fillValue = (float)health.CurrentHealth / (float)health.MaxHealth;

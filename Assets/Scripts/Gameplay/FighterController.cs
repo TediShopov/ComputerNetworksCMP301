@@ -11,6 +11,9 @@ public class FighterController : MonoBehaviour
     [SerializeField] public float moveSpeed = 5f;
     [SerializeField] public float jumpPower = 10f;
 
+    public Projectile projectilePrefab;
+    public Transform projectileFirePoint;
+
 
     public float waitAfterJump;
     public BoxCollider2D groundCollider;
@@ -159,7 +162,9 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
             if (CheckFireball(inputBuffer.PressedKeys.ToArray()))
             {
-                //Debug.LogError("Fireball Input Detected");
+               Debug.LogError("Fireball Input Detected");
+                InputBuffer.PressedKeys.Clear();
+                Instantiate(projectilePrefab, projectileFirePoint.position, projectileFirePoint.rotation);
             }
         }
 
