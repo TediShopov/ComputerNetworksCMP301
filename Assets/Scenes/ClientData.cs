@@ -9,8 +9,8 @@ public class ClientData : MonoBehaviour
     static public bool IsClientInitiator { get; set; } = false;
 
    static private bool _pause;
-
-   static  public bool Pause
+ 
+    static public bool Pause
     {
         get { return _pause; }
         set {
@@ -18,6 +18,8 @@ public class ClientData : MonoBehaviour
             _pause = value;
         }
     }
+
+    static public bool CharacterIndex { get; set; }
 
     static public bool SoloPlay = false;
 

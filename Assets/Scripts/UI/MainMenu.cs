@@ -21,7 +21,16 @@ public class MainMenu: MonoBehaviour
 
     [SerializeField]
     TwoWayConnectionEstablisher twoWayConnection;
-     void Update()
+
+     private bool _characterIndex;
+
+     public bool CharacterIndex
+    {
+        get { return _characterIndex; }
+        set { _characterIndex = value; }
+    }
+
+    void Update()
     {
         if (SocketComunication.ConnectionListener.IsBound)
         {
@@ -60,16 +69,19 @@ public class MainMenu: MonoBehaviour
             statusString += $" {remoteIp.Port} -> {localIp.Port}";
 
         }
-       
     }
 
     public void StartGame() 
     {
+        ClientData.CharacterIndex = CharacterIndex;
+
         SceneManager.LoadScene(1);
     }
 
     public void StartSoloGame() 
     {
+        ClientData.CharacterIndex = CharacterIndex;
+
         ClientData.SoloPlay=true;
         SceneManager.LoadScene(1);
     }
