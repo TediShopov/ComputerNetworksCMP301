@@ -32,9 +32,6 @@ public class FighterBufferMono : MonoBehaviour
         if (CollectInputFromKeyboard && !ClientData.Pause)
         {
             InputBuffer.Enqueue();
-            Debug.LogError($"Player Fighter Buffer Updated");
-            //DebugPrintKeysDown();
-
         }
        
     }

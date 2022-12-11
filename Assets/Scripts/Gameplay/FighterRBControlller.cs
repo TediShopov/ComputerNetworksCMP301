@@ -7,7 +7,6 @@ public class FighterRBControlller : FighterController
     public override void Update()
     {
 
-      //  Debug.LogError($"Call From RB Controller");
         base.Update();
     }
 

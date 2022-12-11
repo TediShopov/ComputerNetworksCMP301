@@ -119,10 +119,12 @@ public class NetworkGamePacket : MonoBehaviour
 
 
             //Could run before input buffer objects are init
-
-            StaticBuffers.Instance.EnemyBuffer?.Enqueue(
-                       new InputFrame(LastReceivedGamePacket.InputElements,
-                                      LastReceivedGamePacket.TimeStamp));
+          
+                StaticBuffers.Instance.EnemyBuffer?.Enqueue(
+                     new InputFrame(LastReceivedGamePacket.InputElements,
+                                    LastReceivedGamePacket.TimeStamp));
+            
+          
             //if (StaticBuffers.Instance != null)
             //{
             //    if (StaticBuffers.Instance.EnemyBuffer != null)

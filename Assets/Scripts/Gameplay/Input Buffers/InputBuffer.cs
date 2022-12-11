@@ -50,26 +50,27 @@ public class InputFrame
 }
 
 
-public class InputBuffer 
+public class InputBuffer
 {
     //TODO make buffer only accpets keys that do sth in the game
 
     public Queue<InputFrame> BufferedInput { get; set; }
     public int DelayInput;
 
-    public  delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
+    public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
     public event InputFrameDelegate OnInputFrameAdded; // event
     public event InputFrameDelegate OnInputFrameDiscarded; // event
 
     public Queue<KeyCode> PressedKeys;
     public HashSet<KeyCode> KeyDowned;
-    public int PressedKeysMaxCount=5;
-    public int RefreshKeyPressedAfterFrames=120;
-    private int _framesPassedSinceKeyDown=0;
+    public int PressedKeysMaxCount = 5;
+    public int RefreshKeyPressedAfterFrames = 120;
+    private int _framesPassedSinceKeyDown = 0;
 
-    //The buffer is ready when there is enough buffered input
-    //to match the delay
-    public bool IsReady { get {return this.BufferedInput.Count > DelayInput; } }
+    public bool IsEmpty => this.BufferedInput.Count <= 0;
+
+    public bool IsOverflow => BufferedInput.Count > DelayInput;
+
     public InputFrame LastFrame { get; set; }
 
     public InputBuffer()
@@ -83,32 +84,41 @@ public class InputBuffer
     {
         this.SetTo(inputBuffer);
     }
-   
 
-    public void SetTo(InputBuffer inputBuffer) 
+
+    public void SetTo(InputBuffer inputBuffer)
     {
-        BufferedInput = new Queue<InputFrame>( inputBuffer.BufferedInput);
-        PressedKeys = new Queue<KeyCode>( inputBuffer.PressedKeys);
-        KeyDowned = new HashSet<KeyCode>( inputBuffer.KeyDowned);
+        BufferedInput = new Queue<InputFrame>(inputBuffer.BufferedInput);
+        PressedKeys = new Queue<KeyCode>(inputBuffer.PressedKeys);
+        KeyDowned = new HashSet<KeyCode>(inputBuffer.KeyDowned);
         LastFrame = inputBuffer.LastFrame;
         this.PressedKeysMaxCount = inputBuffer.PressedKeysMaxCount;
         this.RefreshKeyPressedAfterFrames = inputBuffer.RefreshKeyPressedAfterFrames;
         this._framesPassedSinceKeyDown = inputBuffer._framesPassedSinceKeyDown;
+        this.DelayInput = inputBuffer.DelayInput;
         //this.OnInputFrameAdded = inputBuffer.OnInputFrameAdded;
         //this.OnInputFrameDiscarded = inputBuffer.OnInputFrameDiscarded;
     }
+    public void Clear() 
+    {
+        BufferedInput.Clear();
+        PressedKeys.Clear();
+        KeyDowned.Clear();
+        LastFrame = null;
+        this._framesPassedSinceKeyDown = 0;
 
-   
+    }
 
 
-    public bool IsOverflow { get {return BufferedInput.Count > DelayInput;}}
+
+
     public void Enqueue(InputFrame inputFrame = null)
     {
         if (inputFrame == null)
         {
             inputFrame = new InputFrame(ClientData.AllowedKeys, DelayInput);
         }
-       
+
         BufferedInput.Enqueue(inputFrame);
         //if (BufferedInput.Count > DelayInput)
         //{
@@ -125,7 +135,6 @@ public class InputBuffer
 
     }
 
-    
 
     public InputFrame Dequeue() 
     {
