@@ -384,6 +384,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     public void SetDying(bool b) 
     {
         this.dying = b;
+        animator.SetBool("IsDead", true);
         animator.SetTrigger("Dying");
 
     }
