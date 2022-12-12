@@ -50,7 +50,7 @@ public class Restore : MonoBehaviour
         Transform   RBTransform = from.GetComponent<Transform>();
        
         GameObject newObject;
-        newObject = Instantiate(FighterPrefab);
+        newObject = Instantiate(FighterPrefab,GameState.transform);
        
         //Debug.LogError("Instantiated  NEW Player Fighter");
         try
@@ -118,8 +118,10 @@ public class Restore : MonoBehaviour
            };
             }
 
-
+            Rigidbody2D rigidbody2D=newObject.GetComponent<Rigidbody2D>();
             //Extract RB object Input Buffer and reenact it on the player object
+            rigidbody2D.velocity = from.GetComponent<Rigidbody2D>().velocity;
+            rigidbody2D.position = from.GetComponent<Rigidbody2D>().position;
 
 
             Destroy(toReplace);
@@ -268,18 +270,30 @@ public class Restore : MonoBehaviour
 
         enemyRBBuffer.SetTo(newRollbackBuffer);
 
+
+        StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = false;
+        StaticBuffers.Instance.EnemyRB.GetComponent<Rigidbody2D>().simulated = false;
+
         for (int i = 0; i < 7; i++)
         {
-            
-                ResimulateFramesForFighter(
-                    StaticBuffers.Instance.Player.GetComponent<FighterController>()
-                    , playerBufferCopy, 1);
-                ResimulateFramesForFighter(
-                   StaticBuffers.Instance.Enemy.GetComponent<FighterController>()
-                   , newRollbackBuffer, 1);
+
+
+            StaticBuffers.Instance.Player.GetComponent<FighterController>().ResimulateInput(
+            playerBufferCopy,1);
+
+            StaticBuffers.Instance.Enemy.GetComponent<FighterController>().ResimulateInput(
+           newRollbackBuffer, 1);
+            Physics2D.Simulate(0.016667f);
+            //ResimulateFramesForFighter(
+            //        StaticBuffers.Instance.Player.GetComponent<FighterController>()
+            //        , playerBufferCopy, 1);
+            //    ResimulateFramesForFighter(
+            //       StaticBuffers.Instance.Enemy.GetComponent<FighterController>()
+            //       , newRollbackBuffer, 1);
 
         }
-
+        StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = true;
+        StaticBuffers.Instance.EnemyRB.GetComponent<Rigidbody2D>().simulated = true;
 
     }
 }
