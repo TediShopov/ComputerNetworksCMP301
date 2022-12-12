@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    private HealthScript health;
     private Slider slider; 
 
     public bool isLeft;
@@ -16,23 +15,23 @@ public class PlayerHealth : MonoBehaviour
     void Start()
     {
         slider = GetComponent<Slider>();
-        if (isPlayerHp)
-        {
-            Debug.LogError("Init Player Health Scritp");
-            health = StaticBuffers.Instance.Player.GetComponent<HealthScript>();
-        }
-        else
-        {
-            Debug.LogError("Init Enemy Health Scritp");
-
-            health = StaticBuffers.Instance.Enemy.GetComponent<HealthScript>();
-
-        }
+       
     }
 
     // Update is called once per frame
     void Update()
     {
+        HealthScript health;
+        if (isPlayerHp)
+        {
+            health = StaticBuffers.Instance.Player.GetComponent<HealthScript>();
+        }
+        else
+        { 
+            health = StaticBuffers.Instance.Enemy.GetComponent<HealthScript>();
+
+        }
+
         if (Input.GetKeyDown(KeyCode.Y) && this.isPlayerHp)
         {
             health.TakeDamage(20);

@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 
 public class Restore : MonoBehaviour
@@ -61,7 +59,13 @@ public class Restore : MonoBehaviour
             newObject.transform.position = RBTransform.position;
             newObject.transform.rotation = RBTransform.rotation;
             newObject.transform.parent = RBTransform.parent;
-         
+            if (RBTransform.localScale.x<0)
+            {
+                Debug.LogError("RB Dummy is flipped");
+            }
+            newObject.transform.localScale = RBTransform.localScale;
+
+
             //Changed RestoRE !!!!
             newObject.GetComponent<FighterController>().
                 SetInnerStateTo(from.GetComponent<FighterRBControlller>());
@@ -92,6 +96,9 @@ public class Restore : MonoBehaviour
              crouchNew = newObjectAnimator.GetBool("Crouch");
             bool isTrue = crouchFrom == crouchNew;
 
+            HealthScript healthScript = newObject.GetComponent<HealthScript>();
+            healthScript = from.GetComponent<HealthScript>();
+
 
             bool isEnemy = newObject.GetComponent<FighterController>().isEnemy;
 
@@ -108,10 +115,6 @@ public class Restore : MonoBehaviour
                  (InputFrame f) => {
                RollbackInput = f;
                RollbackFrames = EnemyFighterController.TimeStampDifference;
-               //if (RollbackFrames < 0)
-               //{
-               //    Debug.LogError($"Received Buffer  rollback to {RollbackFrames}");
-               //}
            };
             }
 
@@ -259,23 +262,11 @@ public class Restore : MonoBehaviour
         var playerBufferCopy = new InputBuffer();
         playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer);
         
-
-
         InputBuffer enemyRBBuffer = StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
         InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRBBuffer);
 
         enemyRBBuffer.SetTo(newRollbackBuffer);
-
-
-
-        //enemyRBBuffer.SetTo(enemyBufferCopy);
-        //enemyRBBuffer.
-
-
-
-
-
 
         for (int i = 0; i < 7; i++)
         {

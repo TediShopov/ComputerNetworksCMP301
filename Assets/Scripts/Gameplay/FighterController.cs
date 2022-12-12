@@ -124,11 +124,10 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
   
     void OrientToEnemy(Transform enemyTransform) 
     {
-        Vector2 enemyPos;
-        enemyPos.x = enemyTransform.position.x; enemyPos.y = enemyTransform.position.y;
-        Vector2 dir = enemyPos - rigidbody2d.position;
+      
+       bool isRight= (enemyTransform.position.x - this.transform.position.x)<0;
 
-        if (dir.x < 0)
+        if (isRight)
         {
             isFlipped = true;
             if (this.transform.localScale.x>0)
