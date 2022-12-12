@@ -17,6 +17,12 @@ public class Projectile : MonoBehaviour
         this.AttachToManager.ProjectilesInState.Add(this.gameObject);
         this.gameObject.layer = stateObj.layer;
     }
+
+    public void RemoveFromManager() 
+    {
+       int index= AttachToManager.ProjectilesInState.FindIndex(x => x == gameObject);
+        AttachToManager.ProjectilesInState.RemoveAt(index);
+    }
     public void SetVelocity(Vector2 vel) 
     {
         rigidbody.velocity = vel * speed;
@@ -28,6 +34,7 @@ public class Projectile : MonoBehaviour
     {
         Debug.LogError("Projectile Collider");
         collision.gameObject.GetComponent<HealthScript>().TakeDamage(Damage);
+        RemoveFromManager();
         Destroy(gameObject);
         
     }
