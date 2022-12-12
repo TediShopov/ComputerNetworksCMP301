@@ -86,7 +86,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   rigidbody: {fileID: 4612007542776619051}
-  Damage: 15
+  Damage: 50
 --- !u!212 &272718006308636862
 SpriteRenderer:
   m_ObjectHideFlags: 0

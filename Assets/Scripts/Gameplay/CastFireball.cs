@@ -7,17 +7,17 @@ public class CastFireball : StateMachineBehaviour
     public float offsetProjectile = 0.5f;
     public Projectile projectilePrefab;
 
-    FighterController FighterController;
+    FighterController Fighter;
    
 
-    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (FighterController==null)
+        if (Fighter == null)
         {
-            FighterController = animator.gameObject.GetComponent<FighterController>();
+            Fighter = animator.gameObject.GetComponent<FighterController>();
         }
 
-        Vector3 dirToEnemy = FighterController.GetDirToEnemy();
+        Vector3 dirToEnemy = Fighter.GetDirToEnemy();
         //Make if flat
         dirToEnemy.y = 0;
         dirToEnemy.Normalize();
@@ -25,6 +25,8 @@ public class CastFireball : StateMachineBehaviour
         Vector3 pos = animator.transform.position + dirToEnemy;
 
         var g= Instantiate(projectilePrefab, pos, animator.transform.rotation) as Projectile;
+        g.AddToManager(animator.gameObject.transform.parent.gameObject);
         g.SetVelocity(dirToEnemy);
+        Fighter.SetCastingFireball(false);
     }
 }

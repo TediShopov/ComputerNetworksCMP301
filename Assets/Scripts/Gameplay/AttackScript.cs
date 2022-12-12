@@ -16,6 +16,10 @@ public class AttackScript : MonoBehaviour
     private bool _inHitWindow;
     Coroutine openHitWindow;
     // Start is called before the first frame update
+    [SerializeField]
+    public GameObject[] HurtBoxes;
+   
+
     void Start()
     {
         animator = this.GetComponent<Animator>();

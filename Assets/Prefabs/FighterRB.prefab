@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   jumpPower: 8
+  projectilePrefab: {fileID: 0}
+  projectileFirePoint: {fileID: 0}
   waitAfterJump: 0.5
   groundCollider: {fileID: 3339058037831889132}
   isEnemy: 0
@@ -26,6 +28,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3809812241313592637, guid: d125a66148a66a9418bd32f22a20493a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3852142072929745670, guid: d125a66148a66a9418bd32f22a20493a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 4269862869515494952, guid: d125a66148a66a9418bd32f22a20493a,
         type: 3}
       propertyPath: m_Name
@@ -125,6 +137,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5398423310722700421, guid: d125a66148a66a9418bd32f22a20493a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4269862869515494963, guid: d125a66148a66a9418bd32f22a20493a, type: 3}

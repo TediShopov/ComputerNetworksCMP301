@@ -24,6 +24,11 @@ public class ClientData : MonoBehaviour
     static public bool SoloPlay = false;
 
     static public bool TwoWayConnectionEstablished() {
+
+        if (SocketComunication.Receiver==null || SocketComunication.Sender==null)
+        {
+            return false;
+        }
         return SocketComunication.Receiver.Connected &&
        SocketComunication.Sender.Connected;
     }

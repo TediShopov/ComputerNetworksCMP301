@@ -15,11 +15,11 @@ public class HealthScript : MonoBehaviour
     public bool IsEnemy;
     public int CurrentHealth { get;  private set; }
 
-    public Animator Animator;
+    public FighterController Fighter;
     private void Awake()
     {
         CurrentHealth = MaxHealth;
-        Animator = this.gameObject.GetComponent<Animator>();
+        Fighter = this.gameObject.GetComponent<FighterController>();
     }
 
     public void TakeDamage(int dmgAmount) 
@@ -28,16 +28,16 @@ public class HealthScript : MonoBehaviour
         if (this.CurrentHealth<0)
         {
             this.CurrentHealth = 0;
-            Animator.SetBool("IsDead", true);
+            Fighter.SetDying(true);
         }
 
         if (dmgAmount > _HIGH_DMG_THRESHOLD)
         {
-            Animator.SetTrigger("HighDamage");
+            Fighter.setDamaged(false);
         }
         else 
         {
-            Animator.SetTrigger("LowDamage");
+            Fighter.setDamaged(true);
         }
     }
 

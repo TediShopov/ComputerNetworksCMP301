@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 public class Restore : MonoBehaviour
@@ -9,6 +10,41 @@ public class Restore : MonoBehaviour
     public GameObject GameState;
 
     public InputFrame RollbackInput { get; set; }
+
+
+    void ReplaceAnimationClip(Animator toReplace, Animator from) 
+    {
+        var animState= from.GetCurrentAnimatorStateInfo(0);
+
+        toReplace.Play(animState.fullPathHash,0,animState.normalizedTime);
+    }
+
+    void ReplaceAnimatorParameters(Animator toReplace,Animator from) 
+    {
+        foreach (var param in from.parameters)
+        {
+            
+            switch (param.type)
+            {
+                case AnimatorControllerParameterType.Float: toReplace.SetFloat(param.name, from.GetFloat(param.name));
+
+                    break;
+                case AnimatorControllerParameterType.Int:
+                    toReplace.SetInteger(param.name, from.GetInteger(param.name));
+                    break;
+                case AnimatorControllerParameterType.Bool:
+                    toReplace.SetBool(param.name, from.GetBool(param.name));
+                    break;
+                case AnimatorControllerParameterType.Trigger:
+                //    toReplace.SetTrigger(param.name);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+      
+    }
 
     void ReplaceObject(ref GameObject toReplace, GameObject from)
     {
@@ -25,10 +61,41 @@ public class Restore : MonoBehaviour
             newObject.transform.position = RBTransform.position;
             newObject.transform.rotation = RBTransform.rotation;
             newObject.transform.parent = RBTransform.parent;
-            bool isEnemy = from.GetComponent<FighterRBControlller>().isEnemy;
-            newObject.GetComponent<FighterController>().isEnemy = isEnemy;
+         
+            //Changed RestoRE !!!!
+            newObject.GetComponent<FighterController>().
+                SetInnerStateTo(from.GetComponent<FighterRBControlller>());
+
             newObject.GetComponent<FighterBufferMono>()
                 .InputBuffer.SetTo(toReplace.GetComponent<FighterBufferMono>().InputBuffer);
+
+
+
+            Animator newObjectAnimator = newObject.GetComponent<Animator>();
+            Animator fromAnimator = from.GetComponent<Animator>();
+
+            bool crouchFrom = fromAnimator.GetBool("Crouch");
+            bool crouchNew = newObjectAnimator.GetBool("Crouch");
+
+            if (crouchFrom != crouchNew)
+            {
+                int a=3;
+            }
+
+       
+
+            ReplaceAnimationClip(newObjectAnimator,fromAnimator);
+            ReplaceAnimatorParameters(newObjectAnimator,fromAnimator);
+
+
+             crouchFrom = fromAnimator.GetBool("Crouch");
+             crouchNew = newObjectAnimator.GetBool("Crouch");
+            bool isTrue = crouchFrom == crouchNew;
+
+
+            bool isEnemy = newObject.GetComponent<FighterController>().isEnemy;
+
+
             if (!isEnemy)
             {
                 newObject.GetComponent<FighterBufferMono>().CollectInputFromKeyboard = true;
@@ -38,7 +105,7 @@ public class Restore : MonoBehaviour
             {
                 newObject.GetComponent<SpriteRenderer>().color = Color.red;
                 newObject.GetComponent<FighterBufferMono>().InputBuffer.OnInputFrameAdded +=
-           (InputFrame f) => {
+                 (InputFrame f) => {
                RollbackInput = f;
                RollbackFrames = EnemyFighterController.TimeStampDifference;
                //if (RollbackFrames < 0)
@@ -70,14 +137,6 @@ public class Restore : MonoBehaviour
         
     }
 
-    //void ResimulateFrames(GameObject fighterObj, In, int frames) 
-    //{
-    //    var inputBufferCopy = new InputBuffer();
-    //    inputBufferCopy.SetTo(RBObject.GetComponent<InputBuffer>());
-    //    ResimulateFramesForFighter(
-    //              fighterObj.GetComponent<FighterController>(),
-    //            inputBufferCopy, frames);
-    //}
 
     void ResimulateFramesForFighter(FighterController fighter, InputBuffer inputBuffer, int frames)
     {

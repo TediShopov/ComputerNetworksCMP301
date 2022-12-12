@@ -19,7 +19,8 @@ public class FighterController : MonoBehaviour
     public BoxCollider2D groundCollider;
     //public GameObject enemy;
 
-
+    private bool dying = false;
+    private bool castingFireball = false;
     private bool isGrounded = true;
     private bool isCrouched = false;
     //private Vector3 horizontalMovement;
@@ -38,7 +39,13 @@ public class FighterController : MonoBehaviour
 
     //public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
     //public event InputFrameDelegate OnInputProcessed; // event
-
+    public void SetInnerStateTo(FighterController fc) 
+    {
+        this.isCrouched = fc.isCrouched;
+        this.isEnemy = fc.isEnemy;
+        this.isGrounded = fc.isGrounded;
+        this.dying = fc.dying;
+    }
 
     private void Awake()
     {
@@ -69,7 +76,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     private GameObject GetEnemy() 
     {
         //If in rollback testing layer
-        if (this.gameObject.layer!=9)
+        if (this.gameObject.layer==9)
         {
             if (!isEnemy)
             {
@@ -94,12 +101,11 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
       
     }
 
-
     // Update is called once per frame
      public virtual void Update()
     {
       
-        if (ClientData.Pause)
+        if (ClientData.Pause || this.dying)
         {
             return;
         }
@@ -142,6 +148,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         return Vector3.Normalize( GetEnemy().transform.position - this.transform.position);
     }
 
+
+    
     public int TimeStampDifference=>
         InputBuffer.LastFrame.TimeStamp - GetGameFrame();
        
@@ -169,7 +177,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             {
                Debug.LogError("Fireball Input Detected");
                 InputBuffer.PressedKeys.Clear();
-                animator.SetTrigger("CastFireball");
+
+                SetCastingFireball(true);
                 //Instantiate(projectilePrefab, projectileFirePoint.position, projectileFirePoint.rotation);
             }
         }
@@ -198,10 +207,17 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             
             if (inputBuffer.BufferedInput.Count<=0)
                 {
-              
-                    inputBuffer.Enqueue(GetPredictedInput(inputBuffer.LastFrame));
-              
+
+
+                InputFrame predictedFrame = inputBuffer.LastFrame;
+                if (predictedFrame == null)
+                {
+                    predictedFrame = new InputFrame();
                 }
+               
+                inputBuffer.Enqueue(GetPredictedInput(predictedFrame));
+
+            }
               
               
                 if (isSilent)
@@ -274,11 +290,15 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
     void ProcessInputs(InputElement[] inputs)
     {
+        if (castingFireball)
+        {
+            return;
+        }
         Vector3 horizontalMovement = new Vector3(0, 0, 0);
 
         if (isGrounded)
         {
-            setCrouch(IsKey(KeyCode.S, inputs));
+            SetCrouch(IsKey(KeyCode.S, inputs));
             if (IsKey(KeyCode.Space, inputs))
             {
                 Jump();
@@ -317,8 +337,36 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         animator.SetBool("Jumped", false);
     }
 
+   public void SetCastingFireball(bool b)
+    {
+        castingFireball = b;
+        animator.SetBool("CastingFireball", b);
+        if (isCrouched)
+        {
+            SetCrouch(false);
+        }
 
-    void setCrouch( bool b) 
+    }
+
+
+    public void setDamaged( bool isLow) 
+    {
+        if (isLow)
+        {
+            animator.SetTrigger("LowDamage");
+        }
+        else
+        {
+            animator.SetTrigger("HighDamage");
+        }
+    }
+    public void SetDying(bool b) 
+    {
+        this.dying = b;
+        animator.SetTrigger("Dying");
+
+    }
+    public void SetCrouch( bool b) 
     {
         isCrouched = b;
         animator.SetBool("Crouch", b);
