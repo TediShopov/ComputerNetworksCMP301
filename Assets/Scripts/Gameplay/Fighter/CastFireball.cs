@@ -24,6 +24,7 @@ public class CastFireball : StateMachineBehaviour
         dirToEnemy *= offsetProjectile;
         Vector3 pos = animator.transform.position + dirToEnemy;
 
+        projectilePrefab.gameObject.layer = Fighter.gameObject.layer;
         var g= Instantiate(projectilePrefab, pos, animator.transform.rotation) as Projectile;
         g.AddToManager(animator.gameObject.transform.parent.gameObject);
         g.SetVelocity(dirToEnemy);

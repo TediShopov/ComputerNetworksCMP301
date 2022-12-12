@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class AttackScript : MonoBehaviour
 {
     private Animator animator;
@@ -18,7 +20,7 @@ public class AttackScript : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField]
     public GameObject[] HurtBoxes;
-   
+   public 
 
     void Start()
     {

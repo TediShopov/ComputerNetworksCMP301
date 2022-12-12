@@ -14,7 +14,7 @@ public class SimulateAnimator : MonoBehaviour
 
     public void ManualUpdateFrame() 
     {
-        animator.Update(0.016667f);
+        animator.Update(0.01666666667f);
     } 
     void Update()
     {

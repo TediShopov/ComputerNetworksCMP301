@@ -11,6 +11,11 @@ public class Projectile : MonoBehaviour
 
     public StateProjectileManager AttachToManager;
 
+    private void Awake()
+    {
+        
+    }
+
     public void AddToManager(GameObject stateObj) 
     {
         AttachToManager = stateObj.GetComponent<StateProjectileManager>();
@@ -33,7 +38,12 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
          Debug.LogError("Projectile Collider");
-
+        HealthScript healthScript = collision.gameObject.GetComponent<HealthScript>();
+        if (collision.gameObject.layer != this.gameObject.layer)
+        {
+            return;
+        }
+        healthScript?.TakeDamage(Damage);
         RemoveFromManager();
         Destroy(gameObject);
         

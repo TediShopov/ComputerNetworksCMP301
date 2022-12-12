@@ -251,7 +251,7 @@ public class Restore : MonoBehaviour
 
     }
 
-    InputBuffer InsertRollbackInput(InputBuffer buffer) 
+    InputBuffer InsertRollbackInput(InputBuffer buffer, int indexForNewInput) 
     {
        
         InputBuffer restructuredBuffer = new InputBuffer();
@@ -260,14 +260,17 @@ public class Restore : MonoBehaviour
         //Clear the actual contents
         restructuredBuffer.Clear();
         InputFrame rollbackFrame = buffer.LastFrame;
-        int indexForNewInput = rollbackFrame.TimeStamp - buffer.BufferedInput.Peek().TimeStamp;
+        //int indexForNewInput = rollbackFrame.TimeStamp - buffer.BufferedInput.Peek().TimeStamp;
         //Check which index was rollback found 
         // Debug.LogError($"Index for rollback {indexForNewInput}");
-
+        Debug.LogError($"indexForNewInput : {indexForNewInput}");
+        Debug.LogError($"ToResomulate : { buffer.DelayInput - indexForNewInput}");
         for (int i = 0; i < buffer.DelayInput; i++)
         {
             if (i>= indexForNewInput)
             {
+                
+
                 int predictedFrameCount = (buffer.BufferedInput.Peek().TimeStamp + indexForNewInput);
                 restructuredBuffer.Enqueue(new InputFrame(rollbackFrame._inputInFrame,
                     predictedFrameCount));
@@ -289,6 +292,7 @@ public class Restore : MonoBehaviour
     public void Rollback(int frames) 
     {
         Debug.LogError($"Attemping {frames} Frames Rollback");
+
         ReplaceObject(ref StaticBuffers.Instance.Player, StaticBuffers.Instance.PlayerRB);
         ReplaceObject(ref StaticBuffers.Instance.Enemy, StaticBuffers.Instance.EnemyRB);
         StaticBuffers.Instance.RenewBuffers();
@@ -300,7 +304,7 @@ public class Restore : MonoBehaviour
         
         InputBuffer enemyRBBuffer = StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
-        InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRBBuffer);
+        InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRBBuffer,frames);
 
         enemyRBBuffer.SetTo(newRollbackBuffer);
 
@@ -323,17 +327,13 @@ public class Restore : MonoBehaviour
             StaticBuffers.Instance.Enemy.GetComponent<FighterController>().ResimulateInput(
            newRollbackBuffer, 1);
 
-            StaticBuffers.Instance.Enemy.GetComponent<SimulateAnimator>().ManualUpdateFrame();
+           StaticBuffers.Instance.Enemy.GetComponent<SimulateAnimator>().ManualUpdateFrame();
 
 
             Physics2D.Simulate(0.016667f);
      
         }
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), true);
-
-
-      
-
         StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = true;
         StaticBuffers.Instance.EnemyRB.GetComponent<Rigidbody2D>().simulated = true;
 

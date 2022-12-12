@@ -8,7 +8,8 @@ public class SimulatePhysics : MonoBehaviour
     {
         if (!ClientData.Pause)
         {
-            Physics2D.Simulate(0.016667f);
+         
+            Physics2D.Simulate(0.01666666667f);
         }
 
     }
