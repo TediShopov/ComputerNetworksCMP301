@@ -304,10 +304,10 @@ public class Restore : MonoBehaviour
 
         enemyRBBuffer.SetTo(newRollbackBuffer);
 
-
+        
         StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = false;
         StaticBuffers.Instance.EnemyRB.GetComponent<Rigidbody2D>().simulated = false;
-
+       
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), false);
         ResimulateProjectiles(GameState.GetComponent<StateProjectileManager>(),
             RBState.GetComponent<StateProjectileManager>());
@@ -318,19 +318,21 @@ public class Restore : MonoBehaviour
             StaticBuffers.Instance.Player.GetComponent<FighterController>().ResimulateInput(
             playerBufferCopy,1);
 
+            StaticBuffers.Instance.Player.GetComponent<SimulateAnimator>().ManualUpdateFrame();
+
             StaticBuffers.Instance.Enemy.GetComponent<FighterController>().ResimulateInput(
            newRollbackBuffer, 1);
-            Physics2D.Simulate(0.016667f);
-            //ResimulateFramesForFighter(
-            //        StaticBuffers.Instance.Player.GetComponent<FighterController>()
-            //        , playerBufferCopy, 1);
-            //    ResimulateFramesForFighter(
-            //       StaticBuffers.Instance.Enemy.GetComponent<FighterController>()
-            //       , newRollbackBuffer, 1);
 
+            StaticBuffers.Instance.Enemy.GetComponent<SimulateAnimator>().ManualUpdateFrame();
+
+
+            Physics2D.Simulate(0.016667f);
+     
         }
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), true);
 
+
+      
 
         StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = true;
         StaticBuffers.Instance.EnemyRB.GetComponent<Rigidbody2D>().simulated = true;

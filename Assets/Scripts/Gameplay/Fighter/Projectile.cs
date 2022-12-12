@@ -32,8 +32,8 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.LogError("Projectile Collider");
-        collision.gameObject.GetComponent<HealthScript>().TakeDamage(Damage);
+         Debug.LogError("Projectile Collider");
+
         RemoveFromManager();
         Destroy(gameObject);
         

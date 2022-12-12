@@ -59,7 +59,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1813481008190106082}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -69,8 +69,8 @@ Rigidbody2D:
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_SleepingMode: 2
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &8512291861920893189
 MonoBehaviour:
@@ -87,6 +87,7 @@ MonoBehaviour:
   speed: 5
   rigidbody: {fileID: 4612007542776619051}
   Damage: 50
+  AttachToManager: {fileID: 0}
 --- !u!212 &272718006308636862
 SpriteRenderer:
   m_ObjectHideFlags: 0
