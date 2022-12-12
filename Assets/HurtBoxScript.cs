@@ -16,6 +16,6 @@ public class HurtBoxScript : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var fighter = collision.GetComponent<HealthScript>();
-        fighter.TakeDamage(Damage);
+        fighter?.TakeDamage(Damage);
     }
 }

@@ -15,11 +15,20 @@ public class HealthScript : MonoBehaviour
     public bool IsEnemy;
     public int CurrentHealth { get;  private set; }
 
-    public FighterController Fighter;
+    private FighterController Fighter;
     private void Awake()
     {
         CurrentHealth = MaxHealth;
         Fighter = this.gameObject.GetComponent<FighterController>();
+    }
+
+    public void SetValues(HealthScript healthScript) 
+    {
+        this.MaxHealth = healthScript.MaxHealth;
+        this.MinHealth = healthScript.MinHealth;
+        this.CurrentHealth = healthScript.CurrentHealth;
+        this.IsEnemy = healthScript.IsEnemy;
+
     }
 
     public void TakeDamage(int dmgAmount) 

@@ -99,8 +99,7 @@ public class Restore : MonoBehaviour
             bool isTrue = crouchFrom == crouchNew;
 
             HealthScript healthScript = newObject.GetComponent<HealthScript>();
-            healthScript = from.GetComponent<HealthScript>();
-
+            healthScript.SetValues(from.GetComponent<HealthScript>());
 
             bool isEnemy = newObject.GetComponent<FighterController>().isEnemy;
 
@@ -214,10 +213,6 @@ public class Restore : MonoBehaviour
             (InputFrame f) => {
                 RollbackInput = f;
                 RollbackFrames = EnemyFighterController.TimeStampDifference;
-                if (RollbackFrames<0)
-                {
-                    Debug.LogError($"Received Buffer  rollback to {RollbackFrames}");
-                }
             };
     }
 
@@ -231,7 +226,7 @@ public class Restore : MonoBehaviour
         }
         if (RollbackFrames<0)
         {
-            Debug.LogError($"Received Buffer  rollback to {RollbackFrames}");
+            Debug.LogError($"Received Buffer rollback to {RollbackFrames}");
             if (FrameLimiter.Instance.FramesInPlay>this.RollbackAllowed)
             {
 
@@ -251,7 +246,7 @@ public class Restore : MonoBehaviour
 
     }
 
-    InputBuffer InsertRollbackInput(InputBuffer buffer, int indexForNewInput) 
+    InputBuffer InsertRollbackInput(InputBuffer buffer, InputFrame rollbackFrame) 
     {
        
         InputBuffer restructuredBuffer = new InputBuffer();
@@ -259,21 +254,23 @@ public class Restore : MonoBehaviour
         restructuredBuffer.SetTo(buffer);
         //Clear the actual contents
         restructuredBuffer.Clear();
-        InputFrame rollbackFrame = buffer.LastFrame;
         //int indexForNewInput = rollbackFrame.TimeStamp - buffer.BufferedInput.Peek().TimeStamp;
         //Check which index was rollback found 
         // Debug.LogError($"Index for rollback {indexForNewInput}");
+      
+        int indexForNewInput = rollbackFrame.TimeStamp - buffer.BufferedInput.Peek().TimeStamp;
         Debug.LogError($"indexForNewInput : {indexForNewInput}");
-        Debug.LogError($"ToResomulate : { buffer.DelayInput - indexForNewInput}");
+        Debug.LogError($"ToResomulate : { buffer.DelayInput  - indexForNewInput}");
+        int nextInputTimestampOffset = 0;
         for (int i = 0; i < buffer.DelayInput; i++)
         {
             if (i>= indexForNewInput)
             {
                 
-
-                int predictedFrameCount = (buffer.BufferedInput.Peek().TimeStamp + indexForNewInput);
+                int predictedFrameCount = (nextInputTimestampOffset + rollbackFrame.TimeStamp);
                 restructuredBuffer.Enqueue(new InputFrame(rollbackFrame._inputInFrame,
                     predictedFrameCount));
+                nextInputTimestampOffset++;
             }
             else
             {
@@ -304,7 +301,7 @@ public class Restore : MonoBehaviour
         
         InputBuffer enemyRBBuffer = StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
-        InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRBBuffer,frames);
+        InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRBBuffer,RollbackInput);
 
         enemyRBBuffer.SetTo(newRollbackBuffer);
 
