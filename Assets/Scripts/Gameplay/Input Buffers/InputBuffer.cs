@@ -120,19 +120,13 @@ public class InputBuffer
         }
 
         BufferedInput.Enqueue(inputFrame);
-        //if (BufferedInput.Count > DelayInput)
-        //{
-        //    var deqInputFrame = BufferedInput.Dequeue();
-        //    OnInputFrameDiscarded?.Invoke(deqInputFrame);
-        //}
+     
         LastFrame = inputFrame;
 
-        //Call on add event
-        RecordKeysDown(inputFrame);
+        ////Call on add event
+        //RecordKeysDown(inputFrame);
 
         OnInputFrameAdded?.Invoke(inputFrame);
-
-
     }
 
 
@@ -143,6 +137,8 @@ public class InputBuffer
             return null;
         }
         OnInputFrameDiscarded?.Invoke(this.BufferedInput.Peek());
+        //Call on add event
+        RecordKeysDown(this.BufferedInput.Peek());
         return this.BufferedInput.Dequeue();
     }
 

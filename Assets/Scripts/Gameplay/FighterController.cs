@@ -45,6 +45,7 @@ public class FighterController : MonoBehaviour
         this.isEnemy = fc.isEnemy;
         this.isGrounded = fc.isGrounded;
         this.dying = fc.dying;
+        this.isFlipped = fc.isFlipped;
     }
 
     private void Awake()
@@ -119,21 +120,37 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     }
 
 
-
+    bool isFlipped=false;
   
     void OrientToEnemy(Transform enemyTransform) 
     {
         Vector2 enemyPos;
         enemyPos.x = enemyTransform.position.x; enemyPos.y = enemyTransform.position.y;
         Vector2 dir = enemyPos - rigidbody2d.position;
+
         if (dir.x < 0)
         {
-            spriteRenderer.flipX = true;
+            isFlipped = true;
+            if (this.transform.localScale.x>0)
+            {
+                Vector3 theScale = transform.localScale;
+                theScale.x *= -1;
+                this.transform.localScale = theScale;
+            }
+           // spriteRenderer.flipX = true;
         }
         else
         {
-            spriteRenderer.flipX = false;
+            isFlipped = false;
+            if (this.transform.localScale.x < 0)
+            {
+                Vector3 theScale = transform.localScale;
+                theScale.x *= -1;
+                this.transform.localScale = theScale;
+            }
+            //  spriteRenderer.flipX = false;
         }
+
     }
     public int OffsetGameFrame=0;
 
@@ -320,12 +337,17 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         //Move in the direction of the player input
         rigidbody2d.transform.position += horizontalMovement /** Time.deltaTime*/ * moveSpeed * 0.01f;
         //However the animation should be fliped if needed
-        if (spriteRenderer.flipX)
+        //if (spriteRenderer.flipX)
+        //{
+        //    horizontalMovement.x = -horizontalMovement.x;
+        //}
+
+        if (isFlipped)
         {
             horizontalMovement.x = -horizontalMovement.x;
         }
 
-       animator.SetFloat("XSpeed", horizontalMovement.x);
+        animator.SetFloat("XSpeed", horizontalMovement.x);
 
     }
 
