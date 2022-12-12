@@ -137,6 +137,11 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         return FrameLimiter.Instance.FramesInPlay + OffsetGameFrame;
     }
 
+    public Vector3 GetDirToEnemy() 
+    {
+        return Vector3.Normalize( GetEnemy().transform.position - this.transform.position);
+    }
+
     public int TimeStampDifference=>
         InputBuffer.LastFrame.TimeStamp - GetGameFrame();
        
@@ -164,7 +169,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             {
                Debug.LogError("Fireball Input Detected");
                 InputBuffer.PressedKeys.Clear();
-                Instantiate(projectilePrefab, projectileFirePoint.position, projectileFirePoint.rotation);
+                animator.SetTrigger("CastFireball");
+                //Instantiate(projectilePrefab, projectileFirePoint.position, projectileFirePoint.rotation);
             }
         }
 

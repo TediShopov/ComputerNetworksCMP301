@@ -8,10 +8,16 @@ public class Projectile : MonoBehaviour
     public Rigidbody2D rigidbody;
     public int Damage = 15;
     // Start is called before the first frame update
-    void Start()
+    
+
+    public void SetVelocity(Vector2 vel) 
     {
-        rigidbody.velocity = transform.right * speed;
+        rigidbody.velocity = vel * speed;
     }
+    //void Start()
+    //{
+    //    rigidbody.velocity = transform.right * speed;
+    //}
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
