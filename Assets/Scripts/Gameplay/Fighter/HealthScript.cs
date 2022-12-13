@@ -33,6 +33,13 @@ public class HealthScript : MonoBehaviour
 
     public void TakeDamage(int dmgAmount) 
     {
+
+        if (Fighter.GetBlocking())
+        {
+            dmgAmount = 0;
+            Debug.LogError("Blocked");
+            return;
+        }
         this.CurrentHealth -= dmgAmount;
         if (this.CurrentHealth<0)
         {

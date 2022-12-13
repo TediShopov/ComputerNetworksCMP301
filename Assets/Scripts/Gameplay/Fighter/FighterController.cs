@@ -23,8 +23,10 @@ public class FighterController : MonoBehaviour
     private bool castingFireball = false;
     private bool isGrounded = true;
     private bool isCrouched = false;
+    private bool isBlocking = false;
+
     //private Vector3 horizontalMovement;
-     
+
     private Rigidbody2D rigidbody2d;
 
     //[SerializeField]
@@ -33,12 +35,11 @@ public class FighterController : MonoBehaviour
 
     //[SerializeField]
     private Animator animator;
-    //[SerializeField]
+    private AttackScript attack;
     private SpriteRenderer spriteRenderer;
     // Start is called before the first frame update
 
-    //public delegate void InputFrameDelegate(InputFrame inputFrame);  // delegate
-    //public event InputFrameDelegate OnInputProcessed; // event
+    
     public void SetInnerStateTo(FighterController fc) 
     {
         this.isCrouched = fc.isCrouched;
@@ -56,6 +57,7 @@ public class FighterController : MonoBehaviour
         rigidbody2d = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        attack = GetComponent<AttackScript>();
 
     }
 
@@ -112,6 +114,11 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             return;
         }
 
+
+        if (groundCollider.enabled==false)
+        {
+            groundCollider.enabled = true;
+        }
         OrientToEnemy(GetEnemy()?.transform);
         if (FrameLimiter.Instance.FramesInPlay >=  InputBuffer.DelayInput)
         {
@@ -184,7 +191,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             return;
         }
 
- 
+
 
         //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
         if (inputBuffer.PressedKeys!=null && inputBuffer.PressedKeys.Count!=0)
@@ -195,14 +202,12 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
                Debug.LogError("Fireball Input Detected");
                 InputBuffer.PressedKeys.Clear();
                 AttempCastFireball();
-                //Instantiate(projectilePrefab, projectileFirePoint.position, projectileFirePoint.rotation);
             }
+
+
         }
 
-
         //If combos/special attack is not found 
-        //Todo this will not aacount for multiple pressed keys at once
-
         //Mode for the RB to simulate delay
         if (ExecuteOnlyOnOverflow)
         {
@@ -218,35 +223,23 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         }
         else
         {
-
             InputFrame input;
-            
             if (inputBuffer.BufferedInput.Count<=0)
-                {
-
-
+            {
                 InputFrame predictedFrame = inputBuffer.LastFrame;
                 if (predictedFrame == null)
                 {
                     predictedFrame = new InputFrame();
+                    predictedFrame.SetKey(KeyCode.K);
+                    predictedFrame.TimeStamp = FrameLimiter.Instance.FramesInPlay;
                 }
                
                 inputBuffer.Enqueue(GetPredictedInput(predictedFrame));
 
             }
-              
-              
-                if (isSilent)
-                {
-                     input = inputBuffer.BufferedInput.Dequeue();
-                }
-                else
-                {
-                    input = inputBuffer.Dequeue();
-                }
-
-                ProcessInputs(input);
-                LastFrameProcessed = input.TimeStamp;
+            input = inputBuffer.Dequeue();
+            ProcessInputs(input);
+            LastFrameProcessed = input.TimeStamp;
             
 
         }
@@ -293,11 +286,24 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
     void ProcessInputs(InputFrame inputs)
     {
+
         if (castingFireball)
         {
             return;
         }
         Vector3 horizontalMovement = new Vector3(0, 0, 0);
+
+        if (inputs.IsKey(KeyCode.K) && isGrounded)
+        {
+            this.SetBlocking(true);
+            animator.SetFloat("XSpeed", horizontalMovement.x);
+            return;
+        }
+        SetBlocking(false);
+
+
+        attack.ProcessInput(inputs);
+
 
         if (isGrounded)
         {
@@ -337,6 +343,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     {
         Debug.LogWarning("Player Landed");
         isGrounded = true;
+        animator.SetBool("IsGrounded", true);
         animator.SetBool("Jumped", false);
     }
 
@@ -373,6 +380,15 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             animator.SetTrigger("HighDamage");
         }
     }
+    public bool GetBlocking()
+    {
+        return this.isBlocking;
+    }
+    public void SetBlocking(bool b) 
+    {
+        this.isBlocking = b;
+        animator.SetBool("IsBlocking", b);
+    }
     public void SetDying(bool b) 
     {
         this.dying = b;
@@ -387,11 +403,17 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
     }
     void Jump()
+    
     {
+        groundCollider.enabled = false;
         isGrounded = false;
+        animator.SetBool("IsGrounded", false);
+        
         rigidbody2d.AddForce(new Vector2(0f, jumpPower), ForceMode2D.Impulse);
         animator.SetBool("Jumped", true);
+       
+
 
     }
-   
+
 }

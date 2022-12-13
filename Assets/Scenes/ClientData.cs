@@ -33,12 +33,20 @@ public class ClientData : MonoBehaviour
        SocketComunication.Sender.Connected;
     }
 
-    static public readonly KeyCode[] AllowedKeys = { KeyCode.Space, KeyCode.S, KeyCode.A, KeyCode.D };
+    static public readonly KeyCode[] AllowedKeys = 
+        { KeyCode.Space, 
+        KeyCode.S, 
+        KeyCode.A, 
+        KeyCode.D, 
+        KeyCode.J, 
+        KeyCode.K };
     static public readonly Dictionary<KeyCode,int> AllowedKeysIndex = new Dictionary<KeyCode, int>
         { {KeyCode.Space, 0 },
         {KeyCode.S, 1 }, 
         {KeyCode.A, 2 },
-        {KeyCode.D, 3 } };
+        {KeyCode.D, 3 },
+        { KeyCode.J,4 },
+     { KeyCode.K,5 }};
 
 
 }

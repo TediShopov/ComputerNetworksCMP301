@@ -22,22 +22,26 @@ public class InputFrame
 
     //int DelayInput = 0;
 
-    public InputFrame(): this(ClientData.AllowedKeys,0)
+    public InputFrame()
     {
-        
+        this.TimeStamp = -1;
+        this.Inputs = new byte[ClientData.AllowedKeys.Length];
     }
-    public InputFrame(KeyCode[] allowedKeys,int delay=0)
+
+   public static InputFrame CaptureInput(int delay) 
     {
-        Inputs = new byte[allowedKeys.Length];
+        InputFrame captureInputs= new InputFrame();
+        captureInputs.Inputs = new byte[ClientData.AllowedKeys.Length];
         //this.DelayInput = delay;
-        for (int i = 0; i < allowedKeys.Length; i++)
+        for (int i = 0; i < ClientData.AllowedKeys.Length; i++)
         {
-            if (Input.GetKey(allowedKeys[i]))
+            if (Input.GetKey(ClientData.AllowedKeys[i]))
             {
-                Inputs[i] = 255;
+                captureInputs.Inputs[i] = 255;
             }
-            TimeStamp = FrameLimiter.Instance.FramesInPlay + delay;
+            captureInputs.TimeStamp = FrameLimiter.Instance.FramesInPlay + delay;
         }
+        return captureInputs;
     }
 
     public bool IsKey(KeyCode keyCode)
@@ -45,6 +49,13 @@ public class InputFrame
         int index = ClientData.AllowedKeysIndex[keyCode];
         return Inputs[index] != 0;
         
+    }
+
+
+    public void SetKey(KeyCode code) 
+    {
+        int index = ClientData.AllowedKeysIndex[code];
+        Inputs[index] = 255;
     }
 
     public InputFrame(byte[] inputs,Int32 timestamp)
@@ -60,25 +71,8 @@ public class InputFrame
 
         this.TimeStamp = packet.TimeStamp;
         this.Inputs = packet.InputElements;
-        //if (elements == null)
-        //{
-        //    elements = new InputElement[ClientData.AllowedKeys.Length];
-        //}
-        //this.TimeStamp = timestamp;
-        //this._inputInFrame = elements;
+  
     }
-
-    //public InputFrame(InputElement[] elements=null, Int32 timestamp=-1)
-    //{
-    //    if (elements == null)
-    //    {
-    //        elements = new InputElement[ClientData.AllowedKeys.Length];
-    //    }
-    //    this.TimeStamp = timestamp;
-    //    this._inputInFrame = elements;
-    //}
-
-
 
 }
 
@@ -108,10 +102,6 @@ public class InputBuffer
 
     public InputBuffer()
     {
-        
-
-
-
         BufferedInput = new Queue<InputFrame>();
         PressedKeys = new Queue<KeyCode>();
         KeyDowned = new HashSet<KeyCode>();
@@ -155,7 +145,7 @@ public class InputBuffer
     {
         if (inputFrame == null)
         {
-            inputFrame = new InputFrame(ClientData.AllowedKeys, DelayInput);
+            inputFrame = InputFrame.CaptureInput(DelayInput);
         }
 
         BufferedInput.Enqueue(inputFrame);
@@ -189,7 +179,6 @@ public class InputBuffer
        
             for (int i = 0; i < ClientData.AllowedKeys.Length; i++)
             {
-
                 var key = ClientData.AllowedKeys[i];
                 var inputDown = frame.IsKey(key);
                 if (inputDown)

@@ -7,7 +7,7 @@ using UnityEngine;
 public class AttackScript : MonoBehaviour
 {
     private Animator animator;
-
+    private FighterController fighter; 
 
 
      
@@ -15,30 +15,33 @@ public class AttackScript : MonoBehaviour
 
     private int _hitCount = 0;
     private bool _hitOnTime = true;
-    private bool _inHitWindow;
     Coroutine openHitWindow;
     // Start is called before the first frame update
     [SerializeField]
-    public GameObject[] HurtBoxes;
-   public 
+    public GameObject[] HurtBoxes; 
 
     void Start()
     {
         animator = this.GetComponent<Animator>();
+        fighter = this.GetComponent<FighterController>();
     }
 
-    // Update is called once per frame
-    void Update()
+    bool keyPressed = false;
+    bool waitForRelease = false;
+
+    public void ProcessInput(InputFrame inputFrame) 
     {
-        // ??? If player is grounded and crouched ???
-
-        //When player hits button start new attack
-
-        
-
-        if (Input.GetKeyDown(KeyCode.J))
+        bool keyPressed = inputFrame.IsKey(KeyCode.J);
+        if (waitForRelease)
         {
-            if (_hitCount==3)
+            waitForRelease = keyPressed;
+            return;
+        }
+
+        if (keyPressed)
+        {
+            waitForRelease = true;
+            if (_hitCount == 3)
             {
                 return;
             }
@@ -46,36 +49,44 @@ public class AttackScript : MonoBehaviour
             {
                 _hitCount++;
                 //Time the window in which new key press progresses the combo
-                openHitWindow= StartCoroutine(OpenHitWindow(TimesForComboAdvance[_hitCount-1]));
+                openHitWindow = StartCoroutine(OpenHitWindow(TimesForComboAdvance[_hitCount - 1]));
 
             }
             else if (_hitOnTime)
             {
                 _hitCount++;
-                if (openHitWindow!=null)
+                if (openHitWindow != null)
                 {
                     StopCoroutine(openHitWindow);
                 }
-                openHitWindow = StartCoroutine(OpenHitWindow(TimesForComboAdvance[_hitCount-1]));
+                openHitWindow = StartCoroutine(OpenHitWindow(TimesForComboAdvance[_hitCount - 1]));
 
             }
         }
 
+        //if (!_hitOnTime)
+        //{
+        //    _hitOnTime = false;
+        //    _hitCount = 0;
+        //}
+
+
+        //UpdateAnimation(_hitCount, _hitOnTime);
+    }
+
+    private void Update()
+    {
         if (!_hitOnTime)
         {
             _hitOnTime = false;
             _hitCount = 0;
         }
 
-
         UpdateAnimation(_hitCount, _hitOnTime);
-
-
-
-
-
-
     }
+
+
+
 
     private IEnumerator OpenHitWindow( float realTime)
     {
@@ -99,6 +110,5 @@ public class AttackScript : MonoBehaviour
     {
         animator.SetInteger("LHits", hCount);
         animator.SetBool("LHitOnTime", hit);
-
     }
 }

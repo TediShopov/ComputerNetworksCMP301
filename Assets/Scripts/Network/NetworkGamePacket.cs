@@ -11,7 +11,7 @@ public struct InputFramePacket
 {
     public Int32 TimeStamp; //4 bytes
     //The Input Data to send
-    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 4)]
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 6)]
     public byte[] InputElements;
 }
 public class NetworkGamePacket : MonoBehaviour
