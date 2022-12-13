@@ -548,6 +548,12 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
+  - m_Name: CastFireball
+    m_Type: 9
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -702,8 +708,11 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
+  - m_ConditionMode: 2
     m_ConditionEvent: CastingFireball
+    m_EventTreshold: 0
+  - m_ConditionMode: 1
+    m_ConditionEvent: CastFireball
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 9012983482151940906}
@@ -1113,7 +1122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   offsetProjectile: 0.7
-  projectilePrefab: {fileID: 8512291861920893189, guid: 0ac81c584529e6545b754f164adce6f0,
+  projectilePrefab: {fileID: 1813481008190106082, guid: 0ac81c584529e6545b754f164adce6f0,
     type: 3}
 --- !u!1101 &6202783641922764421
 AnimatorStateTransition:

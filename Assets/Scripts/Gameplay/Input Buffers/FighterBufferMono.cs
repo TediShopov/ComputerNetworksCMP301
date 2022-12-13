@@ -32,8 +32,9 @@ public class FighterBufferMono : MonoBehaviour
         if (CollectInputFromKeyboard && !ClientData.Pause)
         {
             InputBuffer.Enqueue();
+         
         }
-       
+        InputBuffer.OnUpdate();
     }
 
 

@@ -86,6 +86,8 @@ public class InputBuffer
     }
 
 
+   
+
     public void SetTo(InputBuffer inputBuffer)
     {
         BufferedInput = new Queue<InputFrame>(inputBuffer.BufferedInput);

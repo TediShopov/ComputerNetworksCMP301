@@ -5,13 +5,35 @@ using UnityEngine;
 public class CastFireball : StateMachineBehaviour
 {
     public float offsetProjectile = 0.5f;
-    public Projectile projectilePrefab;
+    public GameObject projectilePrefab;
 
     FighterController Fighter;
-   
 
+    static int FireballsCreated = 0;
+
+    bool _doNotCast;
+
+    public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (Fighter == null)
+        {
+            Fighter = animator.gameObject.GetComponent<FighterController>();
+        }
+        if (animator.GetBool("CastingFireball")==true)
+        {
+
+            _doNotCast = true;
+            base.OnStateEnter(animator, stateInfo, layerIndex);
+        }
+        Fighter.SetCastingFireball(true);
+       
+    }
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (_doNotCast)
+        {
+            return;
+        }
         if (Fighter == null)
         {
             Fighter = animator.gameObject.GetComponent<FighterController>();
@@ -24,10 +46,27 @@ public class CastFireball : StateMachineBehaviour
         dirToEnemy *= offsetProjectile;
         Vector3 pos = animator.transform.position + dirToEnemy;
 
-        projectilePrefab.gameObject.layer = Fighter.gameObject.layer;
-        var g= Instantiate(projectilePrefab, pos, animator.transform.rotation) as Projectile;
-        g.AddToManager(animator.gameObject.transform.parent.gameObject);
-        g.SetVelocity(dirToEnemy);
+        
+        //projectilePrefab.gameObject.layer = Fighter.gameObject.layer;
+        //if (projectilePrefab.gameObject.layer==9)
+        //{
+        //    projectilePrefab.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
+        //}
+        var g= Instantiate(projectilePrefab, pos, animator.transform.rotation);
+        g.gameObject.layer= Fighter.gameObject.layer;
+        FireballsCreated++;
+        Debug.LogError($"Created FB {FireballsCreated}");
+        //if (g.gameObject.layer == 9)
+        //{
+        //    g.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
+        //}
+        //else
+        //{
+        //    g.gameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
+        //}
+        var proj = g.GetComponent<Projectile>();
+        proj.AddToManager(animator.gameObject.transform.parent.gameObject);
+        proj.SetVelocity(dirToEnemy);
         Fighter.SetCastingFireball(false);
     }
 }

@@ -489,7 +489,6 @@ MonoBehaviour:
   MaxHealth: 100
   MinHealth: 0
   IsEnemy: 0
-  Fighter: {fileID: 0}
 --- !u!114 &4269862869515494953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -505,7 +504,7 @@ MonoBehaviour:
   CollectInputFromKeyboard: 0
   DelayInput: 3
   PressedKeysMaxCount: 5
-  RefreshKeyPressedAfterFrames: 120
+  RefreshKeyPressedAfterFrames: 10
 --- !u!114 &4269862869515494963
 MonoBehaviour:
   m_ObjectHideFlags: 0

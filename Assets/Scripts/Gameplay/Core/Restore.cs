@@ -61,10 +61,7 @@ public class Restore : MonoBehaviour
             newObject.transform.position = RBTransform.position;
             newObject.transform.rotation = RBTransform.rotation;
             newObject.transform.parent = RBTransform.parent;
-            if (RBTransform.localScale.x<0)
-            {
-                Debug.LogError("RB Dummy is flipped");
-            }
+          
             newObject.transform.localScale = RBTransform.localScale;
 
 
@@ -226,7 +223,7 @@ public class Restore : MonoBehaviour
         }
         if (RollbackFrames<0)
         {
-            Debug.LogError($"Received Buffer rollback to {RollbackFrames}");
+            //Debug.LogError($"Received Buffer rollback to {RollbackFrames}");
             if (FrameLimiter.Instance.FramesInPlay>this.RollbackAllowed)
             {
 
@@ -253,14 +250,14 @@ public class Restore : MonoBehaviour
         //Setup the proeprties
         restructuredBuffer.SetTo(buffer);
         //Clear the actual contents
-        restructuredBuffer.Clear();
+        restructuredBuffer.BufferedInput.Clear();
         //int indexForNewInput = rollbackFrame.TimeStamp - buffer.BufferedInput.Peek().TimeStamp;
         //Check which index was rollback found 
         // Debug.LogError($"Index for rollback {indexForNewInput}");
       
         int indexForNewInput = rollbackFrame.TimeStamp - buffer.BufferedInput.Peek().TimeStamp;
-        Debug.LogError($"indexForNewInput : {indexForNewInput}");
-        Debug.LogError($"ToResomulate : { buffer.DelayInput  - indexForNewInput}");
+        //Debug.LogError($"indexForNewInput : {indexForNewInput}");
+        //Debug.LogError($"ToResomulate : { buffer.DelayInput  - indexForNewInput}");
         int nextInputTimestampOffset = 0;
         for (int i = 0; i < buffer.DelayInput; i++)
         {
@@ -282,7 +279,21 @@ public class Restore : MonoBehaviour
         
     }
 
+    InputBuffer BufferToRollbackWith(InputBuffer RBBuffer, InputBuffer normalBuffer) 
+    {
+        InputBuffer rollbackBuffer = new InputBuffer();
+        rollbackBuffer.SetTo(RBBuffer);
 
+     
+        foreach (var inputFrame in normalBuffer.BufferedInput)
+        {
+            rollbackBuffer.BufferedInput.Enqueue(inputFrame);
+        }
+
+        return rollbackBuffer;
+        //The RBBuffer will be consumed on this rollback frames
+        //However it will retain the pressed keys on on the target buffer;
+    }
 
 
 
@@ -296,14 +307,24 @@ public class Restore : MonoBehaviour
         EnemyFighterController = StaticBuffers.Instance.Enemy.GetComponent<FighterController>();
 
 
-        var playerBufferCopy = new InputBuffer();
-        playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer);
-        
-        InputBuffer enemyRBBuffer = StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
+        //var playerBufferCopy = new InputBuffer();
+        //playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer);
+        //InputBuffer playerBuffer= StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
-        InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRBBuffer,RollbackInput);
+        InputBuffer player = StaticBuffers.Instance.Player.GetComponent<FighterController>().InputBuffer;
+        InputBuffer playerRB = StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer;
+        InputBuffer enemy = StaticBuffers.Instance.Enemy.GetComponent<FighterController>().InputBuffer;
+        InputBuffer enemyRB = StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
-        enemyRBBuffer.SetTo(newRollbackBuffer);
+
+        player =
+        BufferToRollbackWith(playerRB, player);
+
+
+        InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRB,RollbackInput);
+        enemyRB.SetTo(newRollbackBuffer);
+
+        newRollbackBuffer = BufferToRollbackWith(enemyRB, enemy);
 
         
         StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = false;
@@ -312,24 +333,43 @@ public class Restore : MonoBehaviour
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), false);
         ResimulateProjectiles(GameState.GetComponent<StateProjectileManager>(),
             RBState.GetComponent<StateProjectileManager>());
+        var arrA = player.PressedKeys.ToArray();
+
         for (int i = 0; i < 7; i++)
         {
 
 
             StaticBuffers.Instance.Player.GetComponent<FighterController>().ResimulateInput(
-            playerBufferCopy,1);
+            player,1);
+            player.OnUpdate();
 
             StaticBuffers.Instance.Player.GetComponent<SimulateAnimator>().ManualUpdateFrame();
 
             StaticBuffers.Instance.Enemy.GetComponent<FighterController>().ResimulateInput(
-           newRollbackBuffer, 1);
+            newRollbackBuffer, 1);
+            newRollbackBuffer.OnUpdate();
+          
 
-           StaticBuffers.Instance.Enemy.GetComponent<SimulateAnimator>().ManualUpdateFrame();
+            StaticBuffers.Instance.Enemy.GetComponent<SimulateAnimator>().ManualUpdateFrame();
 
 
             Physics2D.Simulate(0.016667f);
      
         }
+        //StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer.PressedKeys
+
+       
+        var arrB = player.PressedKeys.ToArray();
+        if (!arrA.Equals(arrB))
+        {
+            Debug.LogError("Different");
+        }
+
+        //}
+        //if (!enemyRBBuffer.PressedKeys.Equals(newRollbackBuffer.PressedKeys))
+        //{
+        //    Debug.LogError("Different");
+        //}
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), true);
         StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = true;
         StaticBuffers.Instance.EnemyRB.GetComponent<Rigidbody2D>().simulated = true;

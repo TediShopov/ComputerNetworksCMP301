@@ -46,6 +46,7 @@ public class FighterController : MonoBehaviour
         this.isGrounded = fc.isGrounded;
         this.dying = fc.dying;
         this.isFlipped = fc.isFlipped;
+        this.castingFireball = fc.castingFireball;
     }
 
     private void Awake()
@@ -66,7 +67,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
             //Simulate the input buffer as the frame it was send in
             // this will always pass
-            ProcessInputBuffer(inputBuffer, inputBuffer.BufferedInput.Peek().TimeStamp,true);
+            ProcessInputBuffer(inputBuffer, inputBuffer.BufferedInput.Peek().TimeStamp,false);
         }
 
 
@@ -193,8 +194,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             {
                Debug.LogError("Fireball Input Detected");
                 InputBuffer.PressedKeys.Clear();
-
-                SetCastingFireball(true);
+                AttempCastFireball();
                 //Instantiate(projectilePrefab, projectileFirePoint.position, projectileFirePoint.rotation);
             }
         }
@@ -358,8 +358,18 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         animator.SetBool("Jumped", false);
     }
 
-   public void SetCastingFireball(bool b)
+
+    public void AttempCastFireball() 
     {
+        animator.SetTrigger("CastFireball");
+    }
+    public void SetCastingFireball(bool b)
+    {
+        //if (castingFireball==false && b==true)
+        //{
+        //    animator.SetTrigger("CastFireball");
+        
+        //}
         castingFireball = b;
         animator.SetBool("CastingFireball", b);
         if (isCrouched)
@@ -367,6 +377,11 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             SetCrouch(false);
         }
 
+    }
+
+    public bool GetCastingFireball()
+    {
+        return castingFireball;
     }
 
 
