@@ -9,7 +9,8 @@ public class ClientData : MonoBehaviour
     static public bool IsClientInitiator { get; set; } = false;
 
    static private bool _pause;
- 
+    static public bool Finished;
+    static public string GameOverMessage="";
     static public bool Pause
     {
         get { return _pause; }

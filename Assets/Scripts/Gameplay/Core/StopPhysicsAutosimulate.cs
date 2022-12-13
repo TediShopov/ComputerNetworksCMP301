@@ -6,7 +6,6 @@ public class StopPhysicsAutosimulate : MonoBehaviour
 {
     private void Awake()
     {
-        Physics2D.autoSimulation = false;
-        
+        Physics2D.autoSimulation = false; 
     }
 }

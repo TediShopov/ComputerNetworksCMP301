@@ -295,7 +295,7 @@ public class Restore : MonoBehaviour
 
     public void Rollback(int frames) 
     {
-        //Debug.LogError($"Attemping {frames} Frames Rollback");
+        Debug.LogError($"{frames} Frames Rollback");
 
         ReplaceObject(ref StaticBuffers.Instance.Player, StaticBuffers.Instance.PlayerRB);
         ReplaceObject(ref StaticBuffers.Instance.Enemy, StaticBuffers.Instance.EnemyRB);
@@ -307,20 +307,19 @@ public class Restore : MonoBehaviour
         //playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer);
         //InputBuffer playerBuffer= StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
-        InputBuffer player =    StaticBuffers.Instance.Player.GetComponent<FighterController>().InputBuffer;
+         InputBuffer player =    StaticBuffers.Instance.Player.GetComponent<FighterController>().InputBuffer;
         InputBuffer playerRB =  StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer;
         InputBuffer enemy  =     StaticBuffers.Instance.Enemy.GetComponent<FighterController>().InputBuffer;
-        InputBuffer enemyRB =   StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
+       
 
 
         player =
         BufferToRollbackWith(playerRB, player);
 
+        InputBuffer newRollbackBuffer = InsertRollbackInput(StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer, RollbackInput);
+        StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer.SetTo(newRollbackBuffer);
 
-        InputBuffer newRollbackBuffer = InsertRollbackInput(enemyRB,RollbackInput);
-        enemyRB.SetTo(newRollbackBuffer);
-
-        newRollbackBuffer = BufferToRollbackWith(enemyRB, enemy);
+        newRollbackBuffer = BufferToRollbackWith(newRollbackBuffer, enemy);
 
         
         StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = false;
@@ -329,43 +328,28 @@ public class Restore : MonoBehaviour
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), false);
         ResimulateProjectiles(GameState.GetComponent<StateProjectileManager>(),
             RBState.GetComponent<StateProjectileManager>());
+
         
 
         for (int i = 0; i < 7; i++)
         {
-            Debug.LogError($"Enable {AttackScript.Activated} on {i} ");
 
 
-            StaticBuffers.Instance.Player.GetComponent<FighterController>().ResimulateInput(
-            player,1);
+            StaticBuffers.Instance.Player.GetComponent<FighterController>().ResimulateInput(player, 1);
             player.OnUpdate();
-
-
             StaticBuffers.Instance.Player.GetComponent<AttackScript>().OnUpdate();
             StaticBuffers.Instance.Player.GetComponent<SimulateAnimator>().ManualUpdateFrame();
+
 
             StaticBuffers.Instance.Enemy.GetComponent<FighterController>().ResimulateInput(
             newRollbackBuffer, 1);
             newRollbackBuffer.OnUpdate();
-
             StaticBuffers.Instance.Enemy.GetComponent<AttackScript>().OnUpdate();
-
             StaticBuffers.Instance.Enemy.GetComponent<SimulateAnimator>().ManualUpdateFrame();
 
 
             Physics2D.Simulate(0.016667f);
-     
         }
-        //StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer.PressedKeys
-
-       
-    
-
-        //}
-        //if (!enemyRBBuffer.PressedKeys.Equals(newRollbackBuffer.PressedKeys))
-        //{
-        //    Debug.LogError("Different");
-        //}
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), true);
         StaticBuffers.Instance.PlayerRB.GetComponent<Rigidbody2D>().simulated = true;
         StaticBuffers.Instance.EnemyRB.GetComponent<Rigidbody2D>().simulated = true;

@@ -46,7 +46,7 @@ public class SyncClocks : MonoBehaviour
 
         ClientData.Pause = true;
 
-
+        FrameLimiter.Instance.enabled = false;
         if (ClientData.IsClientInitiator)
         {
             InitiatorSend();
@@ -68,6 +68,8 @@ public class SyncClocks : MonoBehaviour
         if (_unpauseGameNextFrame)
         {
             _unpauseGameNextFrame = false;
+            FrameLimiter.Instance.enabled = true;
+
             ClientData.Pause = false;
         }
     }

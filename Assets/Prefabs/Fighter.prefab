@@ -353,7 +353,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 87413b99f90cd8b4cb9cc3cf4196b3db, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
@@ -452,6 +452,8 @@ MonoBehaviour:
   - {fileID: 5398423310722700421}
   - {fileID: 3809812241313592637}
   - {fileID: 3852142072929745670}
+  _hitWindow: 0
+  _hitTimePassed: 0
 --- !u!114 &4269862869515494955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,6 +473,7 @@ MonoBehaviour:
   projectileFirePoint: {fileID: 3386164369090787128}
   waitAfterJump: 0.5
   groundCollider: {fileID: 4269862869515494957}
+  gameOverText: {fileID: 0}
   isEnemy: 0
   OffsetGameFrame: 0
   ExecuteOnlyOnOverflow: 0

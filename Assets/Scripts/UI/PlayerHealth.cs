@@ -21,6 +21,10 @@ public class PlayerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ClientData.Pause)
+        {
+            return;
+        }
         HealthScript health;
         if (isPlayerHp)
         {
@@ -30,6 +34,11 @@ public class PlayerHealth : MonoBehaviour
         { 
             health = StaticBuffers.Instance.Enemy.GetComponent<HealthScript>();
 
+        }
+
+        if (health==null)
+        {
+            return;
         }
 
         if (Input.GetKeyDown(KeyCode.Y) && this.isPlayerHp)

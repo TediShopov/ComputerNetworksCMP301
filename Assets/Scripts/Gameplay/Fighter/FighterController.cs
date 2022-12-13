@@ -39,7 +39,7 @@ public class FighterController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     // Start is called before the first frame update
 
-    
+    public TMPro.TextMeshPro gameOverText;
     public void SetInnerStateTo(FighterController fc) 
     {
         this.isCrouched = fc.isCrouched;
@@ -48,6 +48,21 @@ public class FighterController : MonoBehaviour
         this.dying = fc.dying;
         this.isFlipped = fc.isFlipped;
         this.castingFireball = fc.castingFireball;
+    }
+
+    private void OnDestroy()
+    {
+        if (ClientData.Finished)
+        {
+            if (this.isEnemy)
+            {
+                ClientData.GameOverMessage = "Game Over: You Win";
+            }
+            else
+            {
+                ClientData.GameOverMessage = "Game Over: You Lose";
+            }
+        }
     }
 
     private void Awake()
@@ -298,7 +313,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         {
             return;
         }
-        Vector3 horizontalMovement = new Vector3(0, 0, 0);
+        Vector2 horizontalMovement = new Vector2(0, 0);
 
         if (inputs.IsKey(KeyCode.K) && isGrounded)
         {
@@ -338,7 +353,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         }
 
         //Move in the direction of the player input
-        rigidbody2d.transform.position += horizontalMovement /** Time.deltaTime*/ * moveSpeed * 0.01f;
+        rigidbody2d.position += horizontalMovement /** Time.deltaTime*/ * moveSpeed * 0.01f; 
+       // rigidbody2d.transform.position += horizontalMovement /** Time.deltaTime*/ * moveSpeed * 0.01f;
        
         if (isFlipped)
         {
