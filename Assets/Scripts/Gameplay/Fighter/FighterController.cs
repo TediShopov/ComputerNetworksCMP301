@@ -174,7 +174,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     {
         //Debug.LogError($"Predicted input from {lastReceived.TimeStamp}");
 
-        return new InputFrame(lastReceived._inputInFrame,
+        return new InputFrame(lastReceived.Inputs,
                   FrameLimiter.Instance.FramesInPlay);
     }
     void ProcessInputBuffer(InputBuffer inputBuffer,int frameToSimulate=0,bool isSilent = false ) 
@@ -211,7 +211,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
                 InputFrame input = inputBuffer.Dequeue();
                 int diff = GetGameFrame() - input.TimeStamp;
                // Debug.LogError($" RB Timestamp difference is {diff}");
-                ProcessInputs(input._inputInFrame);
+                ProcessInputs(input);
                 LastFrameProcessed = input.TimeStamp;
             }
           
@@ -245,7 +245,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
                     input = inputBuffer.Dequeue();
                 }
 
-                ProcessInputs(input._inputInFrame);
+                ProcessInputs(input);
                 LastFrameProcessed = input.TimeStamp;
             
 
@@ -291,20 +291,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         return false;
     }
 
-     bool IsKey(KeyCode keyCode,InputElement[] inputInFrame) 
-    {
-        foreach (var inputElement in inputInFrame)
-        {
-            if (inputElement.key==keyCode)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-   
-
-    void ProcessInputs(InputElement[] inputs)
+    void ProcessInputs(InputFrame inputs)
     {
         if (castingFireball)
         {
@@ -314,8 +301,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
         if (isGrounded)
         {
-            SetCrouch(IsKey(KeyCode.S, inputs));
-            if (IsKey(KeyCode.Space, inputs))
+            SetCrouch(inputs.IsKey(KeyCode.S));
+            if (inputs.IsKey(KeyCode.Space))
             {
                 Jump();
             }
@@ -323,11 +310,11 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
         if (!isCrouched)
         {
-            if (IsKey(KeyCode.D, inputs))
+            if (inputs.IsKey(KeyCode.D))
             {
                 horizontalMovement.x = 1;
             }
-            if (IsKey(KeyCode.A, inputs))
+            if (inputs.IsKey(KeyCode.A))
             {
                 horizontalMovement.x = -1;
             }
@@ -335,12 +322,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
         //Move in the direction of the player input
         rigidbody2d.transform.position += horizontalMovement /** Time.deltaTime*/ * moveSpeed * 0.01f;
-        //However the animation should be fliped if needed
-        //if (spriteRenderer.flipX)
-        //{
-        //    horizontalMovement.x = -horizontalMovement.x;
-        //}
-
+       
         if (isFlipped)
         {
             horizontalMovement.x = -horizontalMovement.x;
@@ -365,11 +347,6 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     }
     public void SetCastingFireball(bool b)
     {
-        //if (castingFireball==false && b==true)
-        //{
-        //    animator.SetTrigger("CastFireball");
-        
-        //}
         castingFireball = b;
         animator.SetBool("CastingFireball", b);
         if (isCrouched)

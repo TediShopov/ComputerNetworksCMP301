@@ -265,7 +265,7 @@ public class Restore : MonoBehaviour
             {
                 
                 int predictedFrameCount = (nextInputTimestampOffset + rollbackFrame.TimeStamp);
-                restructuredBuffer.Enqueue(new InputFrame(rollbackFrame._inputInFrame,
+                restructuredBuffer.Enqueue(new InputFrame(rollbackFrame.Inputs,
                     predictedFrameCount));
                 nextInputTimestampOffset++;
             }

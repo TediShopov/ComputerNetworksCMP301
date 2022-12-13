@@ -6,19 +6,19 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 
 
-public struct GamePacket
+
+public struct InputFramePacket 
 {
-   
     public Int32 TimeStamp; //4 bytes
     //The Input Data to send
     [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 4)]
-    public InputElement[] InputElements;
+    public byte[] InputElements;
 }
 public class NetworkGamePacket : MonoBehaviour
 {
     //TODO maybe store multiple
-    static private GamePacket _lastReceivedGamePacket;
-    static public GamePacket LastReceivedGamePacket { 
+    static private InputFramePacket _lastReceivedGamePacket;
+    static public InputFramePacket LastReceivedGamePacket { 
         get { 
                 lock (receiveLock)
             {
@@ -41,26 +41,34 @@ public class NetworkGamePacket : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GamePacket gp;
+
+        InputFramePacket gp;
         gp.TimeStamp = -1;
-        gp.InputElements = new InputElement[10];
+        gp.InputElements = new byte[4];
+        var b = SocketComunication.RawSerialize(gp);
+
+
+        //GamePacket gp;
+        //gp.TimeStamp = -1;
+        //gp.InputElements = new InputElement[10];
         receiveByteBuffer = SocketComunication.RawSerialize(gp);
         sendByteBuffer = SocketComunication.RawSerialize(gp);
         sendFinished = true;
         reocuringReceiveEvent = true;
     }
 
-   
 
-    GamePacket PrepareGamePacket() 
+
+    InputFramePacket PrepareGamePacket() 
     {
-        GamePacket gp;
-        
+       // GamePacket gp;
+        InputFramePacket gp;
+       
         if (StaticBuffers.Instance.PlayerBuffer.LastFrame!=null)
         {
-            gp.TimeStamp = StaticBuffers.Instance.PlayerBuffer.LastFrame.TimeStamp;
-            gp.InputElements = StaticBuffers.Instance.PlayerBuffer.LastFrame._inputInFrame;
 
+            gp.TimeStamp = StaticBuffers.Instance.PlayerBuffer.LastFrame.TimeStamp;
+            gp.InputElements = StaticBuffers.Instance.PlayerBuffer.LastFrame.Inputs;
         }
         else
         {
@@ -111,37 +119,16 @@ public class NetworkGamePacket : MonoBehaviour
     {
         lock (receiveLock)
         {
-            LastReceivedGamePacket = SocketComunication.RawDeserialize<GamePacket>(arg.Buffer, 0);
-            //TODO probably will need a lock
-
-            //The current expected input buffer
-            //ideal case gameFrame + Delay 
-
+            LastReceivedGamePacket = SocketComunication.RawDeserialize<InputFramePacket>(arg.Buffer, 0);
 
             //Could run before input buffer objects are init
-          
-                StaticBuffers.Instance.EnemyBuffer?.Enqueue(
-                     new InputFrame(LastReceivedGamePacket.InputElements,
-                                    LastReceivedGamePacket.TimeStamp));
-            
-          
-            //if (StaticBuffers.Instance != null)
-            //{
-            //    if (StaticBuffers.Instance.EnemyBuffer != null)
-            //    {
-            //        StaticBuffers.Instance.EnemyBuffer.Enqueue(
-            //           new InputFrame(LastReceivedGamePacket.InputElements,LastReceivedGamePacket.TimeStamp));
-            //    }
-            //}
-
-           
+            StaticBuffers.Instance.EnemyBuffer?.Enqueue(
+                new InputFrame(LastReceivedGamePacket.InputElements,LastReceivedGamePacket.TimeStamp));
         }
 
         if (reocuringReceiveEvent)
         {
             SocketComunication.DefaultReceive(receiveByteBuffer, ReceiveGamePacket_Reoccur);
         }
-
-
     }
 }

@@ -5,47 +5,80 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-[StructLayout(LayoutKind.Explicit, Size = 4)]
-public struct InputElement 
-{
-    [FieldOffset(0)]
-    public KeyCode key;     //4 bytes
-}
+//[StructLayout(LayoutKind.Explicit, Size = 4)]
+//public struct InputElement 
+//{
+//    [FieldOffset(0)]
+//    public KeyCode key;     //4 bytes
+//}
 
 
 public class InputFrame 
 {
-    public InputElement[] _inputInFrame;
+    //public InputElement[] _inputInFrame;
+    public byte[] Inputs;
     public Int32 TimeStamp { get; set; }
-    int DelayInput = 0;
+
+
+    //int DelayInput = 0;
+
+    public InputFrame(): this(ClientData.AllowedKeys,0)
+    {
+        
+    }
     public InputFrame(KeyCode[] allowedKeys,int delay=0)
     {
-        _inputInFrame = new InputElement[allowedKeys.Length];
-        this.DelayInput = delay;
+        Inputs = new byte[allowedKeys.Length];
+        //this.DelayInput = delay;
         for (int i = 0; i < allowedKeys.Length; i++)
         {
-            
             if (Input.GetKey(allowedKeys[i]))
             {
-                KeyCode keyCode = allowedKeys[i];
-                _inputInFrame[i].key = keyCode;
+                Inputs[i] = 255;
             }
-            TimeStamp = FrameLimiter.Instance.FramesInPlay + DelayInput;
+            TimeStamp = FrameLimiter.Instance.FramesInPlay + delay;
         }
     }
 
-   
-    public InputFrame(InputElement[] elements=null, Int32 timestamp=-1)
+    public bool IsKey(KeyCode keyCode)
     {
-        if (elements == null)
-        {
-            elements = new InputElement[ClientData.AllowedKeys.Length];
-        }
-        this.TimeStamp = timestamp;
-        this._inputInFrame = elements;
+        int index = ClientData.AllowedKeysIndex[keyCode];
+        return Inputs[index] != 0;
+        
     }
 
-   
+    public InputFrame(byte[] inputs,Int32 timestamp)
+    {
+
+        this.TimeStamp = timestamp;
+        this.Inputs = inputs;
+        
+    }
+
+    public InputFrame(InputFramePacket packet)
+    {
+
+        this.TimeStamp = packet.TimeStamp;
+        this.Inputs = packet.InputElements;
+        //if (elements == null)
+        //{
+        //    elements = new InputElement[ClientData.AllowedKeys.Length];
+        //}
+        //this.TimeStamp = timestamp;
+        //this._inputInFrame = elements;
+    }
+
+    //public InputFrame(InputElement[] elements=null, Int32 timestamp=-1)
+    //{
+    //    if (elements == null)
+    //    {
+    //        elements = new InputElement[ClientData.AllowedKeys.Length];
+    //    }
+    //    this.TimeStamp = timestamp;
+    //    this._inputInFrame = elements;
+    //}
+
+
 
 }
 
@@ -75,6 +108,10 @@ public class InputBuffer
 
     public InputBuffer()
     {
+        
+
+
+
         BufferedInput = new Queue<InputFrame>();
         PressedKeys = new Queue<KeyCode>();
         KeyDowned = new HashSet<KeyCode>();
@@ -149,57 +186,41 @@ public class InputBuffer
     void RecordKeysDown(InputFrame frame) 
     {
         //Already takes into acount pririty of inputs
-        try
-        {
-            for (int i = 0; i < frame._inputInFrame.Length; i++)
+       
+            for (int i = 0; i < ClientData.AllowedKeys.Length; i++)
             {
 
-                
-                var input = frame._inputInFrame[i];
-                KeyCode inputCheck = ClientData.AllowedKeys[i];
-
-                // K == 1
-               
-                if (inputCheck == input.key)
+                var key = ClientData.AllowedKeys[i];
+                var inputDown = frame.IsKey(key);
+                if (inputDown)
                 {
-                    if (!KeyDowned.Contains(inputCheck))
+                    if (!KeyDowned.Contains(key))
                     {
-                        KeyDowned.Add(inputCheck);
+                        KeyDowned.Add(key);
                     }
                 }
                 //K == 0
                 else
                 {
                     //On Release
-                    if (KeyDowned.Contains(inputCheck))
+                    if (KeyDowned.Contains(key))
                     {
-                        // Held Down: A
-                        // Pressed Keys: S D
-                        // Pressed Keys: 
-
-                        //DSpASD
                         if (PressedKeys.Count > PressedKeysMaxCount)
                         {
                             //Test out what is the error dequing empty q
                             PressedKeys.Dequeue();
 
                         }
-                        KeyDowned.Remove(inputCheck);
-                        PressedKeys.Enqueue(inputCheck);
+                        KeyDowned.Remove(key);
+                        PressedKeys.Enqueue(key);
                         _framesPassedSinceKeyDown = 0;
                         break;
                     }
 
                 }
             }
-        }
-        catch (IndexOutOfRangeException e)
-        {
-            int a = 3;
-            throw;
-        }
         
-       
+
     }
     public InputFrame Peek()
     {
@@ -240,9 +261,13 @@ public class InputBuffer
         string strAllInputBuff = " Input Buffer";
         foreach (var inputFrame in this.BufferedInput)
         {
-            foreach (var el in inputFrame._inputInFrame)
+            foreach (var key in ClientData.AllowedKeys)
             {
-                strAllInputBuff += el.key.ToString();
+                if (inputFrame.IsKey(key))
+                {
+                    strAllInputBuff += key;
+                }
+               
             }
         }
         Debug.LogError(strAllInputBuff);

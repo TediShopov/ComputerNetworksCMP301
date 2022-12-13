@@ -45,25 +45,11 @@ public class CastFireball : StateMachineBehaviour
         dirToEnemy.Normalize();
         dirToEnemy *= offsetProjectile;
         Vector3 pos = animator.transform.position + dirToEnemy;
-
-        
-        //projectilePrefab.gameObject.layer = Fighter.gameObject.layer;
-        //if (projectilePrefab.gameObject.layer==9)
-        //{
-        //    projectilePrefab.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
-        //}
         var g= Instantiate(projectilePrefab, pos, animator.transform.rotation);
         g.gameObject.layer= Fighter.gameObject.layer;
         FireballsCreated++;
         Debug.LogError($"Created FB {FireballsCreated}");
-        //if (g.gameObject.layer == 9)
-        //{
-        //    g.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
-        //}
-        //else
-        //{
-        //    g.gameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
-        //}
+       
         var proj = g.GetComponent<Projectile>();
         proj.AddToManager(animator.gameObject.transform.parent.gameObject);
         proj.SetVelocity(dirToEnemy);
