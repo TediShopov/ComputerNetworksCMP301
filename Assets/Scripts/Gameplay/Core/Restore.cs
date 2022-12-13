@@ -79,24 +79,20 @@ public class Restore : MonoBehaviour
 
             bool crouchFrom = fromAnimator.GetBool("Crouch");
             bool crouchNew = newObjectAnimator.GetBool("Crouch");
-
-            if (crouchFrom != crouchNew)
-            {
-                int a=3;
-            }
-
-       
-
+            //TODO add blocking state to restore
             ReplaceAnimationClip(newObjectAnimator,fromAnimator);
             ReplaceAnimatorParameters(newObjectAnimator,fromAnimator);
 
-
-             crouchFrom = fromAnimator.GetBool("Crouch");
-             crouchNew = newObjectAnimator.GetBool("Crouch");
-            bool isTrue = crouchFrom == crouchNew;
-
             HealthScript healthScript = newObject.GetComponent<HealthScript>();
             healthScript.SetValues(from.GetComponent<HealthScript>());
+
+
+            AttackScript attackScript = newObject.GetComponent<AttackScript>();
+            if (from.GetComponent<AttackScript>().IsHitting==true)
+            {
+                int a = 3;
+            }
+            attackScript.SetTo(from.GetComponent<AttackScript>());
 
             bool isEnemy = newObject.GetComponent<FighterController>().isEnemy;
 
@@ -299,7 +295,7 @@ public class Restore : MonoBehaviour
 
     public void Rollback(int frames) 
     {
-        Debug.LogError($"Attemping {frames} Frames Rollback");
+        //Debug.LogError($"Attemping {frames} Frames Rollback");
 
         ReplaceObject(ref StaticBuffers.Instance.Player, StaticBuffers.Instance.PlayerRB);
         ReplaceObject(ref StaticBuffers.Instance.Enemy, StaticBuffers.Instance.EnemyRB);
@@ -311,10 +307,10 @@ public class Restore : MonoBehaviour
         //playerBufferCopy.SetTo(StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer);
         //InputBuffer playerBuffer= StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
-        InputBuffer player = StaticBuffers.Instance.Player.GetComponent<FighterController>().InputBuffer;
-        InputBuffer playerRB = StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer;
-        InputBuffer enemy = StaticBuffers.Instance.Enemy.GetComponent<FighterController>().InputBuffer;
-        InputBuffer enemyRB = StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
+        InputBuffer player =    StaticBuffers.Instance.Player.GetComponent<FighterController>().InputBuffer;
+        InputBuffer playerRB =  StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer;
+        InputBuffer enemy  =     StaticBuffers.Instance.Enemy.GetComponent<FighterController>().InputBuffer;
+        InputBuffer enemyRB =   StaticBuffers.Instance.EnemyRB.GetComponent<FighterController>().InputBuffer;
 
 
         player =
@@ -333,22 +329,26 @@ public class Restore : MonoBehaviour
         SetSimulationState(RBState.GetComponent<StateProjectileManager>(), false);
         ResimulateProjectiles(GameState.GetComponent<StateProjectileManager>(),
             RBState.GetComponent<StateProjectileManager>());
-        var arrA = player.PressedKeys.ToArray();
+        
 
         for (int i = 0; i < 7; i++)
         {
+            Debug.LogError($"Enable {AttackScript.Activated} on {i} ");
 
 
             StaticBuffers.Instance.Player.GetComponent<FighterController>().ResimulateInput(
             player,1);
             player.OnUpdate();
 
+
+            StaticBuffers.Instance.Player.GetComponent<AttackScript>().OnUpdate();
             StaticBuffers.Instance.Player.GetComponent<SimulateAnimator>().ManualUpdateFrame();
 
             StaticBuffers.Instance.Enemy.GetComponent<FighterController>().ResimulateInput(
             newRollbackBuffer, 1);
             newRollbackBuffer.OnUpdate();
-          
+
+            StaticBuffers.Instance.Enemy.GetComponent<AttackScript>().OnUpdate();
 
             StaticBuffers.Instance.Enemy.GetComponent<SimulateAnimator>().ManualUpdateFrame();
 
@@ -359,11 +359,7 @@ public class Restore : MonoBehaviour
         //StaticBuffers.Instance.PlayerRB.GetComponent<FighterController>().InputBuffer.PressedKeys
 
        
-        var arrB = player.PressedKeys.ToArray();
-        if (!arrA.Equals(arrB))
-        {
-            Debug.LogError("Different");
-        }
+    
 
         //}
         //if (!enemyRBBuffer.PressedKeys.Equals(newRollbackBuffer.PressedKeys))

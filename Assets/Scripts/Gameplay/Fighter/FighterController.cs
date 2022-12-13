@@ -124,7 +124,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
         {
             ProcessInputBuffer(InputBuffer, GetGameFrame());
         }
-
+        attack.OnUpdate();
     }
 
 
@@ -191,6 +191,8 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
             return;
         }
 
+        
+
 
 
         //var keyDownBuff = this.InputBuffer.GetKeyDownBuffer();
@@ -230,7 +232,7 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
                 if (predictedFrame == null)
                 {
                     predictedFrame = new InputFrame();
-                    predictedFrame.SetKey(KeyCode.K);
+                    //predictedFrame.SetKey(KeyCode.K);
                     predictedFrame.TimeStamp = FrameLimiter.Instance.FramesInPlay;
                 }
                
@@ -253,6 +255,11 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
     {
         
         KeyCode[] consecKey = new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D };
+        if (isFlipped)
+        {
+            consecKey = new KeyCode[] { KeyCode.D, KeyCode.S, KeyCode.A };
+        }
+
         bool fireballDone = true;
 
         if (inputElements.Length < 3)
@@ -303,6 +310,10 @@ public void ResimulateInput(InputBuffer inputBuffer,int frames)
 
 
         attack.ProcessInput(inputs);
+        if (attack.IsHitting)
+        {
+            return;
+        }
 
 
         if (isGrounded)
